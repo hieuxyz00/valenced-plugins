@@ -1,0 +1,23 @@
+{
+	"format": 1,
+	"id": "hieuxyz.translator",
+	"name": "Translator",
+	"description": "Translator message in chat",
+	"author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
+	"version": "1.0.0",
+	"icon": "TranslateIcon",
+	"dependencies": {
+		"valenced.api": {
+			"version": ">=1 <2"
+		},
+		"discord": {
+			"version": "*"
+		},
+		"hieuxyz.lib": {
+			"version": ">=1 <2"
+		}
+	},
+	"dist": {
+		"script": "index.js"
+	}
+}
