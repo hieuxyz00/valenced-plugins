@@ -55,6 +55,11 @@ bun run lint
 
 - **hieuxyz** ([@hieuxyz00](https://github.com/hieuxyz00))
 
+## Note
+
+> [!NOTE]
+> This project was developed with the assistance of AI.
+
 ## License
 
 This project is licensed under the [GPL-3.0 License](LICENSE).
