@@ -40,6 +40,30 @@
         }
       }
     },
+    "hieuxyz.no-reply-mention": {
+      "name": "NoReplyMention",
+      "description": "Automatically disable mention when replying to messages. Long-press mention toggle to switch.",
+      "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
+      "icon": "ChatArrowRightIcon",
+      "channels": {
+        "latest": "1.0.0"
+      },
+      "versions": {
+        "1.0.0": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.no-reply-mention@1.0.0.zip",
+          "sha256": "939d3277b3f78f039e94723c121e7e370e6431d1e7f30560c62c7b5863a59619",
+          "size": 1999,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            }
+          }
+        }
+      }
+    },
     "hieuxyz.staff-tags": {
       "name": "Staff Tags",
       "description": "Custom staff tags for Discord members.",
