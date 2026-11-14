@@ -7,7 +7,7 @@ A collection of plugins for the [Valenced](https://github.com/Valenced/valenced)
 To install plugins directly in Valenced, add this repository link under **Valenced Settings > Plugins > Plugin Repositories**:
 
 ```
-https://hieuxyz00.github.io/valenced-plugins/
+https://hieuxyz00.github.io/valenced-plugins/index.json
 ```
 
 ---
