@@ -33,13 +33,26 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "WrenchIcon",
       "channels": {
-        "latest": "1.0.0"
+        "latest": "1.0.1"
       },
       "versions": {
         "1.0.0": {
           "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.lib@1.0.0.zip",
           "sha256": "d81b21695b0a3377f064fe644ed8045cdda769a560d5cd0cfaba35056ca697a3",
           "size": 8936,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            }
+          }
+        },
+        "1.0.1": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.lib@1.0.1.zip",
+          "sha256": "7af10cbad71a224548d338ce0cbaa6ef43cf0b797fae191337ddf0ec9d5e5227",
+          "size": 8071,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
@@ -57,13 +70,29 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "ShieldUserIcon",
       "channels": {
-        "latest": "1.0.0"
+        "latest": "1.0.1"
       },
       "versions": {
         "1.0.0": {
           "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.staff-tags@1.0.0.zip",
           "sha256": "f4e6d442406687992412b379a653d36352fc07afe0f859d79dac2d8999ccffdd",
           "size": 28056,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "hieuxyz.lib": {
+              "version": ">=1 <2"
+            }
+          }
+        },
+        "1.0.1": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.staff-tags@1.0.1.zip",
+          "sha256": "e08b6529b1abb5b066c6e013be0682147f07c3a5f1cbd1f3c3fdd63d27fd0277",
+          "size": 28166,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
@@ -84,13 +113,29 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "TranslateIcon",
       "channels": {
-        "latest": "1.0.0"
+        "latest": "1.0.1"
       },
       "versions": {
         "1.0.0": {
           "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.translator@1.0.0.zip",
           "sha256": "2838476bf22bb5f6ea8fc8ef41670175888b88f29b1c18a996f855ed74a12b71",
           "size": 10798,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "hieuxyz.lib": {
+              "version": ">=1 <2"
+            }
+          }
+        },
+        "1.0.1": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.translator@1.0.1.zip",
+          "sha256": "ec90035eddf96cc55b6d747aa433e0bb38d7ea4352179d8c82208d83e0fbb81d",
+          "size": 10301,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
