@@ -17,7 +17,6 @@ https://hieuxyz00.github.io/valenced-plugins/index.json
 | Plugin | ID | Description |
 |---|---|---|
 | **Hieuxyz Lib** | `hieuxyz.lib` | Shared component library featuring PiP modal, HTML & gradient color picker, emoji & Discord vector icon picker, and HSV/RGB color utilities. |
-| **BypassNSFWGate** | `hieuxyz.bypass-nsfw-gate` | Automatically bypasses NSFW channel gates, age-restricted server warnings, and suppresses Discord age verification popups while forcing adult account status. |
 | **Staff Tags** | `hieuxyz.staff-tags` | Custom staff tags, badges, and server roles rendered in Discord chat via Xposed, with support for custom text, Discord vector icons, gradients, and role colors. |
 | **Translator** | `hieuxyz.translator` | In-app chat translation for incoming and outgoing messages with multi-provider fallback (Google, Microsoft, MyMemory), support for embeds & components v2, and quick settings via long-press on the chat bar button. |
 
