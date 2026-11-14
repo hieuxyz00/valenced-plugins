@@ -1,0 +1,20 @@
+{
+	"format": 1,
+	"id": "hieuxyz.no-reply-mention",
+	"name": "NoReplyMention",
+	"description": "Automatically disable mention when replying to messages. Long-press mention toggle to switch.",
+	"author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
+	"version": "1.0.0",
+	"icon": "ChatArrowRightIcon",
+	"dependencies": {
+		"valenced.api": {
+			"version": ">=1 <2"
+		},
+		"discord": {
+			"version": "*"
+		}
+	},
+	"dist": {
+		"script": "index.js"
+	}
+}
