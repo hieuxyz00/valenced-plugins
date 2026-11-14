@@ -182,6 +182,10 @@ const ITEM_GAP = 6
 const ROW_HEIGHT = ITEM_SIZE + ITEM_GAP
 const OVERSCAN_ROWS = 3
 
+/**
+ * High-performance virtualized Emoji & Icon Picker.
+ * Uses Discord Design.TextInput and Design.Text.
+ */
 export function EmojiPicker({ currentIcon, onSelect }: EmojiPickerProps) {
 	const [query, setQuery] = useState('')
 	const [activeCategory, setActiveCategory] = useState<string>('All')
@@ -278,49 +282,44 @@ export function EmojiPicker({ currentIcon, onSelect }: EmojiPickerProps) {
 	}, [activeCategory, allMixedItems, discordIcons, safeQuery])
 
 	const categories = useMemo(() => {
-		return ['All', 'Discord Icons', ...EMOJI_CATEGORIES.map(c => c.name)]
+		return ['All', 'Discord Icons', ...CATEGORY_DEFINITIONS.map(c => c.name)]
 	}, [])
 
-	const columns = useMemo(() => {
-		return Math.max(
-			4,
-			Math.floor((containerWidth + ITEM_GAP) / (ITEM_SIZE + ITEM_GAP)),
-		)
-	}, [containerWidth])
+	const itemsPerRow = Math.max(4, Math.floor(containerWidth / ROW_HEIGHT))
+	const totalRows = Math.ceil(filteredItems.length / itemsPerRow)
 
-	const rows = useMemo(() => {
-		const result: PickerItem[][] = []
-		for (let i = 0; i < filteredItems.length; i += columns) {
-			result.push(filteredItems.slice(i, i + columns))
-		}
-		return result
-	}, [filteredItems, columns])
-
-	const rowCount = rows.length
-
+	const safeViewportHeight = Math.max(450, viewportHeight)
 	const startRowIndex = Math.max(
 		0,
 		Math.floor(scrollY / ROW_HEIGHT) - OVERSCAN_ROWS,
 	)
-	const endRowIndex = Math.min(
-		rowCount,
-		Math.ceil((scrollY + viewportHeight) / ROW_HEIGHT) + OVERSCAN_ROWS,
-	)
+	const visibleRowCount =
+		Math.ceil(safeViewportHeight / ROW_HEIGHT) + OVERSCAN_ROWS * 2
+	const endRowIndex = Math.min(totalRows, startRowIndex + visibleRowCount)
 
-	const visibleRows = rows.slice(startRowIndex, endRowIndex)
+	const visibleRows = useMemo(() => {
+		const rows: PickerItem[][] = []
+		for (let r = startRowIndex; r < endRowIndex; r++) {
+			const startIdx = r * itemsPerRow
+			const row = filteredItems.slice(startIdx, startIdx + itemsPerRow)
+			if (row.length > 0) rows.push(row)
+		}
+		return rows
+	}, [filteredItems, startRowIndex, endRowIndex, itemsPerRow])
+
 	const topSpacerHeight = startRowIndex * ROW_HEIGHT
-	const bottomSpacerHeight = Math.max(0, (rowCount - endRowIndex) * ROW_HEIGHT)
+	const bottomSpacerHeight = Math.max(0, (totalRows - endRowIndex) * ROW_HEIGHT)
 
 	const handleScroll = useCallback(
-		(e: NativeSyntheticEvent<NativeScrollEvent>) => {
-			setScrollY(e.nativeEvent.contentOffset.y)
+		(event: NativeSyntheticEvent<NativeScrollEvent>) => {
+			setScrollY(event.nativeEvent.contentOffset.y)
 		},
 		[],
 	)
 
 	return (
 		<View
-			style={{ flex: 1, width: '100%' }}
+			style={{ flex: 1 }}
 			onLayout={e => {
 				const { width, height } = e.nativeEvent.layout
 				if (width > 0) setContainerWidth(width)
@@ -330,13 +329,14 @@ export function EmojiPicker({ currentIcon, onSelect }: EmojiPickerProps) {
 			{/* Pinned Search Input */}
 			<View style={{ marginBottom: 8 }}>
 				<TextInput
-					placeholder="Search emojis or icons..."
+					label="Search Icons or Emojis"
+					placeholder="Search e.g. CrownIcon, Fire, Heart..."
 					value={query}
 					onChange={handleQueryChange}
 				/>
 			</View>
 
-			{/* Pinned Category Selector Tabs: Instant zero-delay touch response */}
+			{/* Category Selector Tabs */}
 			<ScrollView
 				horizontal
 				showsHorizontalScrollIndicator={false}
@@ -384,7 +384,7 @@ export function EmojiPicker({ currentIcon, onSelect }: EmojiPickerProps) {
 				{activeCategory} ({filteredItems.length} items)
 			</Text>
 
-			{/* Virtualized Sliding Window Grid: Scrolled-past items are strictly unloaded */}
+			{/* Virtualized Sliding Window Grid */}
 			<ScrollView
 				ref={scrollViewRef}
 				style={{ flex: 1 }}
@@ -396,12 +396,10 @@ export function EmojiPicker({ currentIcon, onSelect }: EmojiPickerProps) {
 				scrollEventThrottle={16}
 				onScroll={handleScroll}
 			>
-				{/* Top Spacer: replaces scrolled-past unmounted rows */}
 				{topSpacerHeight > 0 ? (
 					<View style={{ height: topSpacerHeight }} />
 				) : null}
 
-				{/* Active Visible Rows */}
 				{visibleRows.map((rowItems, rIdx) => {
 					const rowIndex = startRowIndex + rIdx
 					return (
@@ -488,7 +486,6 @@ export function EmojiPicker({ currentIcon, onSelect }: EmojiPickerProps) {
 					)
 				})}
 
-				{/* Bottom Spacer: maintains total scrollable track height */}
 				{bottomSpacerHeight > 0 ? (
 					<View style={{ height: bottomSpacerHeight }} />
 				) : null}

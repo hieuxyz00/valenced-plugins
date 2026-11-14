@@ -1,14 +1,8 @@
 import Page from '@valenced/components/Page'
+import { AlertActionCreators } from '@valenced/discord/actions'
 import { Design } from '@valenced/discord/design'
 import { useState } from 'react'
-import {
-	Modal,
-	Pressable,
-	ScrollView,
-	Text,
-	TextInput,
-	View,
-} from 'react-native'
+import { ScrollView } from 'react-native'
 import { getLanguageName, LANGUAGES } from './languages'
 import { DefaultSettings } from './types'
 import type { PluginSettingsComponent } from '@valenced/plugins/types'
@@ -16,188 +10,86 @@ import type { ComponentProps } from 'react'
 import type { Settings, TranslationProvider } from './types'
 
 const {
+	AlertActionButton,
+	AlertModal,
 	Stack,
 	TableRadioGroup,
 	TableRadioRow,
 	TableRow,
 	TableRowGroup,
 	TableSwitchRow,
+	TextArea,
 } = Design
 
-interface ChannelInputModalProps {
-	visible: boolean
-	title: string
-	channels: string[]
-	onSave: (channels: string[]) => void
-	onClose: () => void
-}
+function openChannelInputAlert(
+	mode: 'send' | 'rev',
+	currentChannels: string[],
+	onSave: (channels: string[]) => void,
+) {
+	const key = `translator-channels-${mode}`
+	let buffer = currentChannels.join('\n')
 
-function ChannelInputModal({
-	visible,
-	title,
-	channels,
-	onSave,
-	onClose,
-}: ChannelInputModalProps) {
-	const [text, setText] = useState(() => channels.join('\n'))
-
-	return (
-		<Modal
-			visible={visible}
-			transparent
-			animationType="fade"
-			onRequestClose={onClose}
-		>
-			<Pressable
-				onPress={onClose}
-				style={{
-					flex: 1,
-					backgroundColor: 'rgba(0, 0, 0, 0.7)',
-					justifyContent: 'center',
-					alignItems: 'center',
-					padding: 16,
-				}}
-			>
-				<Pressable
-					onPress={e => e.stopPropagation()}
-					style={{
-						width: '100%',
-						maxWidth: 420,
-						maxHeight: '80%',
-						backgroundColor: '#1E1F22',
-						borderRadius: 16,
-						padding: 20,
-						borderWidth: 1,
-						borderColor: '#35363C',
+	AlertActionCreators.openAlert(
+		key,
+		<AlertModal
+			title={
+				mode === 'send'
+					? 'Send Auto-Translate Channels'
+					: 'Receive Auto-Translate Channels'
+			}
+			content="Enter channel IDs separated by spaces, commas, or newlines:"
+			extraContent={
+				<TextArea
+					defaultValue={buffer}
+					placeholder="e.g. 112233445566 778899001122"
+					onChange={val => {
+						buffer = val
 					}}
-				>
-					<Text
-						style={{
-							fontSize: 18,
-							fontWeight: '700',
-							color: '#F2F3F5',
-							marginBottom: 4,
-						}}
-					>
-						{title}
-					</Text>
-					<Text
-						style={{
-							fontSize: 13,
-							color: '#949BA4',
-							marginBottom: 14,
-						}}
-					>
-						Paste or enter channel IDs separated by spaces, commas, or newlines.
-					</Text>
-
-					<TextInput
-						multiline
-						numberOfLines={6}
-						value={text}
-						onChangeText={setText}
-						placeholder="e.g. 112233445566 778899001122"
-						placeholderTextColor="#5C5E66"
-						style={{
-							backgroundColor: '#2B2D31',
-							color: '#F2F3F5',
-							borderRadius: 8,
-							padding: 12,
-							minHeight: 120,
-							maxHeight: 200,
-							textAlignVertical: 'top',
-							fontSize: 14,
-							borderWidth: 1,
-							borderColor: '#3F4147',
-							marginBottom: 16,
+				/>
+			}
+			actions={
+				<>
+					<AlertActionButton
+						text="Save"
+						variant="primary"
+						onPress={() => {
+							const parsed = buffer
+								.split(/[,\s\n]+/)
+								.map(s => s.trim())
+								.filter(s => s.length > 0 && /^\d+$/.test(s))
+							onSave(Array.from(new Set(parsed)))
+							AlertActionCreators.dismissAlert(key)
 						}}
 					/>
-
-					<View
-						style={{
-							flexDirection: 'row',
-							justifyContent: 'flex-end',
-							gap: 10,
+					<AlertActionButton
+						text="Clear All"
+						variant="destructive"
+						onPress={() => {
+							onSave([])
+							AlertActionCreators.dismissAlert(key)
 						}}
-					>
-						<Pressable
-							onPress={() => {
-								setText('')
-								onSave([])
-								onClose()
-							}}
-							style={{
-								paddingHorizontal: 14,
-								paddingVertical: 10,
-								borderRadius: 8,
-								backgroundColor: '#DA373C',
-							}}
-						>
-							<Text
-								style={{ color: '#FFFFFF', fontWeight: '600', fontSize: 13 }}
-							>
-								Clear All
-							</Text>
-						</Pressable>
-						<Pressable
-							onPress={onClose}
-							style={{
-								paddingHorizontal: 14,
-								paddingVertical: 10,
-								borderRadius: 8,
-								backgroundColor: '#35363C',
-							}}
-						>
-							<Text
-								style={{ color: '#F2F3F5', fontWeight: '600', fontSize: 13 }}
-							>
-								Cancel
-							</Text>
-						</Pressable>
-						<Pressable
-							onPress={() => {
-								const parsed = text
-									.split(/[,\s\n]+/)
-									.map(s => s.trim())
-									.filter(s => s.length > 0 && /^\d+$/.test(s))
-								const unique = Array.from(new Set(parsed))
-								onSave(unique)
-								onClose()
-							}}
-							style={{
-								paddingHorizontal: 16,
-								paddingVertical: 10,
-								borderRadius: 8,
-								backgroundColor: '#5865F2',
-							}}
-						>
-							<Text
-								style={{ color: '#FFFFFF', fontWeight: '600', fontSize: 13 }}
-							>
-								Save
-							</Text>
-						</Pressable>
-					</View>
-				</Pressable>
-			</Pressable>
-		</Modal>
+					/>
+					<AlertActionButton
+						text="Cancel"
+						variant="secondary"
+						onPress={() => AlertActionCreators.dismissAlert(key)}
+					/>
+				</>
+			}
+		/>,
 	)
 }
 
-type SettingsComponentProps = ComponentProps<
-	PluginSettingsComponent<{ jsonStorage: Settings }>
->
-
-export default function SettingsComponent({ api }: SettingsComponentProps) {
+export default function SettingsComponent({
+	api,
+}: ComponentProps<PluginSettingsComponent<{ jsonStorage: Settings }>>) {
 	const storage = api.jsonStorage
-	const hieuxyz = api.hieuxyz ?? api.unscoped?.hieuxyz
-	const LanguagePickerModal = hieuxyz?.LanguagePickerModal
+	const LanguagePickerModal = (api.hieuxyz ?? api.unscoped?.hieuxyz)
+		?.LanguagePickerModal
 
-	const saved = storage.use()
-	const settings: Settings = {
-		...DefaultSettings,
-		...(saved as Partial<Settings> | undefined),
-	}
+	const stored = storage.use()
+	const settings: Settings = { ...DefaultSettings, ...stored }
+
 	const provider = settings.provider ?? DefaultSettings.provider
 	const sourceLang = settings.sourceLang ?? DefaultSettings.sourceLang
 	const targetLang = settings.targetLang ?? DefaultSettings.targetLang
@@ -213,6 +105,7 @@ export default function SettingsComponent({ api }: SettingsComponentProps) {
 		settings.chatButtonEnabled ?? DefaultSettings.chatButtonEnabled
 	const chatButtonPosition =
 		settings.chatButtonPosition ?? DefaultSettings.chatButtonPosition
+
 	const sendChannels = Array.isArray(settings.sendChannels)
 		? settings.sendChannels
 		: []
@@ -222,9 +115,6 @@ export default function SettingsComponent({ api }: SettingsComponentProps) {
 
 	const [pickerMode, setPickerMode] = useState<
 		'source' | 'target' | 'sendSource' | 'sendTarget' | null
-	>(null)
-	const [channelModalMode, setChannelModalMode] = useState<
-		'send' | 'rev' | null
 	>(null)
 
 	const currentPickerLang = () => {
@@ -238,7 +128,7 @@ export default function SettingsComponent({ api }: SettingsComponentProps) {
 			case 'sendTarget':
 				return sendTargetLang
 			default:
-				return 'auto'
+				return 'en'
 		}
 	}
 
@@ -358,7 +248,11 @@ export default function SettingsComponent({ api }: SettingsComponentProps) {
 									? `${sendChannels.length} channels configured (tap to edit/bulk paste IDs)`
 									: 'None (tap to add or bulk paste channel IDs)'
 							}
-							onPress={() => setChannelModalMode('send')}
+							onPress={() =>
+								openChannelInputAlert('send', sendChannels, newChannels => {
+									void storage.set({ sendChannels: newChannels })
+								})
+							}
 						/>
 						<TableRow
 							label="Receive Auto-Translate Channels"
@@ -367,31 +261,13 @@ export default function SettingsComponent({ api }: SettingsComponentProps) {
 									? `${revChannels.length} channels configured (tap to edit/bulk paste IDs)`
 									: 'None (tap to add or bulk paste channel IDs)'
 							}
-							onPress={() => setChannelModalMode('rev')}
+							onPress={() =>
+								openChannelInputAlert('rev', revChannels, newChannels => {
+									void storage.set({ revChannels: newChannels })
+								})
+							}
 						/>
 					</TableRowGroup>
-
-					{channelModalMode ? (
-						<ChannelInputModal
-							visible={channelModalMode !== null}
-							title={
-								channelModalMode === 'send'
-									? 'Send Auto-Translate Channels'
-									: 'Receive Auto-Translate Channels'
-							}
-							channels={
-								channelModalMode === 'send' ? sendChannels : revChannels
-							}
-							onSave={newChannels => {
-								if (channelModalMode === 'send') {
-									void storage.set({ sendChannels: newChannels })
-								} else {
-									void storage.set({ revChannels: newChannels })
-								}
-							}}
-							onClose={() => setChannelModalMode(null)}
-						/>
-					) : null}
 
 					{LanguagePickerModal ? (
 						<LanguagePickerModal

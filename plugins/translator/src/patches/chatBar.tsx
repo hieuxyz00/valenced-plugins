@@ -1,11 +1,17 @@
-import { ToastActionCreators } from '@valenced/discord/actions'
+import {
+	ActionSheetActionCreators,
+	ToastActionCreators,
+} from '@valenced/discord/actions'
 import { Design } from '@valenced/discord/design'
 import { Stores } from '@valenced/discord/flux'
 import { getModuleWithImportedPath } from '@valenced/discord/utils/modules/finders'
 import { after } from '@valenced/patcher'
 import { lookupGeneratedIconComponent } from '@valenced/utils/discord'
-import { createElement, useState } from 'react'
-import { Modal, Pressable, Text, View } from 'react-native'
+import { createElement, useEffect, useRef, useState } from 'react'
+import { Pressable, View } from 'react-native'
+
+const { Text } = Design
+
 import { getLanguageName, LANGUAGES } from '../languages'
 import { findInReactFiber, injectChatBarTranslatorButton } from '../logic'
 import { DefaultSettings } from '../types'
@@ -294,105 +300,43 @@ export function SendSettingsModal({
 		</View>
 	)
 
+	const fallbackKeyRef = useRef('translator-quick-settings-sheet')
+
+	useEffect(() => {
+		if (!PipModalComponent && visible) {
+			const SheetComponent = () => (
+				<Design.ActionSheet onDismiss={onClose}>
+					{modalContent}
+				</Design.ActionSheet>
+			)
+			ActionSheetActionCreators.openLazy(
+				Promise.resolve({ default: SheetComponent }),
+				fallbackKeyRef.current,
+				{},
+			)
+		} else if (!PipModalComponent && !visible) {
+			ActionSheetActionCreators.hideActionSheet(fallbackKeyRef.current)
+		}
+		return () => {
+			if (!PipModalComponent) {
+				ActionSheetActionCreators.hideActionSheet(fallbackKeyRef.current)
+			}
+		}
+	}, [visible, PipModalComponent, onClose, modalContent])
+
 	if (PipModalComponent) {
 		return (
 			<PipModalComponent
 				visible={visible}
 				onClose={onClose}
 				title="Translator Quick Settings"
-				subtitle="Configure send and receive translation"
-				height="80%"
-				position="side"
 			>
 				{modalContent}
 			</PipModalComponent>
 		)
 	}
 
-	return (
-		<Modal
-			visible={visible}
-			transparent
-			animationType="fade"
-			onRequestClose={onClose}
-		>
-			<View
-				testID="send-settings-modal"
-				style={{
-					flex: 1,
-					backgroundColor: 'rgba(0, 0, 0, 0.65)',
-					justifyContent: 'center',
-					alignItems: 'center',
-					padding: 16,
-				}}
-			>
-				<Pressable
-					onPress={onClose}
-					style={{
-						position: 'absolute',
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-					}}
-				/>
-				<View
-					style={{
-						width: '100%',
-						maxWidth: 420,
-						maxHeight: '85%',
-						backgroundColor: '#1E1F22',
-						borderRadius: 16,
-						padding: 16,
-						elevation: 8,
-						borderWidth: 1,
-						borderColor: 'rgba(255, 255, 255, 0.1)',
-					}}
-				>
-					<View
-						style={{
-							flexDirection: 'row',
-							justifyContent: 'space-between',
-							alignItems: 'center',
-							marginBottom: 12,
-						}}
-					>
-						<Text
-							style={{
-								fontSize: 18,
-								fontWeight: '700',
-								color: '#FFFFFF',
-							}}
-						>
-							Translator Quick Settings
-						</Text>
-						<Pressable
-							onPress={onClose}
-							hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-							style={({ pressed }) => ({
-								width: 28,
-								height: 28,
-								justifyContent: 'center',
-								alignItems: 'center',
-								opacity: pressed ? 0.6 : 1,
-							})}
-						>
-							<Text
-								style={{
-									fontSize: 16,
-									fontWeight: '700',
-									color: '#DBDEE1',
-								}}
-							>
-								✕
-							</Text>
-						</Pressable>
-					</View>
-					{modalContent}
-				</View>
-			</View>
-		</Modal>
-	)
+	return null
 }
 
 export const QuickSettingsModal = SendSettingsModal

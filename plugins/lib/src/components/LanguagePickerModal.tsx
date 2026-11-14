@@ -1,9 +1,9 @@
+import { SearchInput, TableRowAssetIcon } from '@valenced/components'
 import { Design } from '@valenced/discord/design'
 import { useMemo, useState } from 'react'
-import { Pressable, View } from 'react-native'
 import { PipModal } from './PipModal'
 
-const { Text, TextInput } = Design
+const { TableRow, TableRowGroup } = Design
 
 export interface LanguagePickerModalProps {
 	visible: boolean
@@ -28,6 +28,10 @@ const COMMON_LANGS: ReadonlyArray<[code: string, label: string]> = [
 	['th', 'Thai'],
 ]
 
+/**
+ * Native language picker action sheet.
+ * Uses Discord TableRow, TableRowGroup and SearchInput.
+ */
 export function LanguagePickerModal({
 	visible,
 	title,
@@ -62,112 +66,68 @@ export function LanguagePickerModal({
 		return list
 	}, [allowAuto, languages, safeQuery])
 
+	const handleSelect = (code: string) => {
+		onSelect(code)
+		onClose()
+	}
+
 	return (
 		<PipModal
 			visible={visible}
 			onClose={onClose}
 			title={title}
-			subtitle="Tap to select target language"
-			height="74%"
 			fixedHeader={
-				<View style={{ marginBottom: 4 }}>
-					<TextInput
-						placeholder="Search language name or code..."
-						value={query}
-						onChange={setQuery}
-					/>
-				</View>
+				<SearchInput
+					placeholder="Search language name or code..."
+					onChange={(v: string) => setQuery(v)}
+				/>
 			}
 		>
-			{/* Quick common language chips */}
-			<View
-				style={{
-					flexDirection: 'row',
-					flexWrap: 'wrap',
-					gap: 6,
-					marginBottom: 12,
-				}}
-			>
-				{allowAuto ? (
-					<Pressable
-						onPress={() => {
-							onSelect('auto')
-							onClose()
-						}}
-						style={{
-							paddingHorizontal: 8,
-							paddingVertical: 5,
-							borderRadius: 6,
-							backgroundColor:
-								current === 'auto' ? '#5865F2' : 'rgba(255, 255, 255, 0.08)',
-						}}
-					>
-						<Text variant="text-xs/medium">Auto</Text>
-					</Pressable>
-				) : null}
-				{COMMON_LANGS.map(([code, label]) => {
-					const isSel = current === code
-					return (
-						<Pressable
+			{!safeQuery && (
+				<TableRowGroup title="Popular Languages">
+					{allowAuto && (
+						<TableRow
+							label="Auto-detect"
+							subLabel="auto"
+							onPress={() => handleSelect('auto')}
+							trailing={
+								current === 'auto' ? (
+									<TableRowAssetIcon name="CheckmarkLargeIcon" />
+								) : undefined
+							}
+						/>
+					)}
+					{COMMON_LANGS.map(([code, name]) => (
+						<TableRow
 							key={code}
-							onPress={() => {
-								onSelect(code)
-								onClose()
-							}}
-							style={{
-								paddingHorizontal: 8,
-								paddingVertical: 5,
-								borderRadius: 6,
-								backgroundColor: isSel
-									? '#5865F2'
-									: 'rgba(255, 255, 255, 0.08)',
-							}}
-						>
-							<Text variant="text-xs/medium">{label}</Text>
-						</Pressable>
-					)
-				})}
-			</View>
+							label={name}
+							subLabel={code}
+							onPress={() => handleSelect(code)}
+							trailing={
+								current === code ? (
+									<TableRowAssetIcon name="CheckmarkLargeIcon" />
+								) : undefined
+							}
+						/>
+					))}
+				</TableRowGroup>
+			)}
 
-			{/* Language List */}
-			<View style={{ gap: 2 }}>
-				{filtered.map(([code, name]) => {
-					const isSel = current === code
-					return (
-						<Pressable
-							key={code}
-							onPress={() => {
-								onSelect(code)
-								onClose()
-							}}
-							style={{
-								flexDirection: 'row',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-								paddingVertical: 10,
-								paddingHorizontal: 8,
-								borderRadius: 6,
-								backgroundColor: isSel
-									? 'rgba(88, 101, 242, 0.2)'
-									: 'transparent',
-							}}
-						>
-							<Text
-								variant="text-sm/medium"
-								style={{
-									color: isSel ? '#5865F2' : '#FFFFFF',
-									fontWeight: isSel ? '700' : '400',
-								}}
-							>
-								{isSel ? `✓ ${name}` : name}
-							</Text>
-							<Text variant="text-xs/normal" color="text-muted">
-								{code}
-							</Text>
-						</Pressable>
-					)
-				})}
-			</View>
+			<TableRowGroup title={safeQuery ? 'Search Results' : 'All Languages'}>
+				{filtered.map(([code, name]) => (
+					<TableRow
+						key={code}
+						label={name}
+						subLabel={code}
+						onPress={() => handleSelect(code)}
+						trailing={
+							current === code ? (
+								<TableRowAssetIcon name="CheckmarkLargeIcon" />
+							) : undefined
+						}
+					/>
+				))}
+			</TableRowGroup>
 		</PipModal>
 	)
 }

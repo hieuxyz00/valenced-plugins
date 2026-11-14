@@ -45,10 +45,18 @@ export interface DiscordChannel {
 	permissionOverwrites?: DiscordPermissionOverwrites
 }
 
+export interface DiscordRoleColorStrings {
+	primaryColor?: string | null
+	secondaryColor?: string | null
+	tertiaryColor?: string | null
+}
+
 export interface DiscordGuildMember {
 	userId?: string
 	guildId?: string
 	colorString?: string | null
+	colorStrings?: DiscordRoleColorStrings | null
+	colorRoleId?: string | null
 	roles?: string[]
 }
 

@@ -8,6 +8,7 @@ import type {
 	DiscordGuild,
 	DiscordGuildMember,
 	DiscordPermissionOverwrites,
+	DiscordRoleColorStrings,
 	DiscordUser,
 	Tag,
 	TagResult,
@@ -135,6 +136,72 @@ export const tags: Tag[] = [
 	},
 ]
 
+/**
+ * Extracts a member's top role color, preserving full Discord gradients (linear-gradient)
+ * when enhanced role styles / multi-color roles are present.
+ */
+export function extractMemberRoleColor(
+	guildId: string | undefined,
+	userId: string | undefined,
+): string | undefined {
+	if (!guildId || !userId) return undefined
+
+	const GuildMemberStore = Stores.GuildMemberStore as
+		| DiscordModules.Flux.Store<{
+				getMember(
+					guildId?: string,
+					userId?: string,
+				): DiscordGuildMember | undefined
+		  }>
+		| undefined
+
+	const member = GuildMemberStore?.getMember(guildId, userId)
+	if (!member) return undefined
+
+	// 1. Check member.colorStrings for gradient role colors
+	const colorStrings = member.colorStrings
+	if (colorStrings?.primaryColor && colorStrings?.secondaryColor) {
+		if (colorStrings.tertiaryColor) {
+			return `linear-gradient(90deg, ${colorStrings.primaryColor}, ${colorStrings.secondaryColor}, ${colorStrings.tertiaryColor})`
+		}
+		return `linear-gradient(90deg, ${colorStrings.primaryColor}, ${colorStrings.secondaryColor})`
+	}
+
+	// 2. Check GuildRoleStore by colorRoleId if member.colorStrings was not directly set
+	if (member.colorRoleId) {
+		const GuildRoleStore = Stores.GuildRoleStore as
+			| DiscordModules.Flux.Store<{
+					getRole(
+						guildId?: string,
+						roleId?: string,
+					):
+						| {
+								colorStrings?: DiscordRoleColorStrings | null
+								colorString?: string | null
+						  }
+						| undefined
+			  }>
+			| undefined
+		const role = GuildRoleStore?.getRole(guildId, member.colorRoleId)
+		if (role?.colorStrings?.primaryColor && role.colorStrings.secondaryColor) {
+			if (role.colorStrings.tertiaryColor) {
+				return `linear-gradient(90deg, ${role.colorStrings.primaryColor}, ${role.colorStrings.secondaryColor}, ${role.colorStrings.tertiaryColor})`
+			}
+			return `linear-gradient(90deg, ${role.colorStrings.primaryColor}, ${role.colorStrings.secondaryColor})`
+		}
+		if (role?.colorString) {
+			return role.colorString
+		}
+	}
+
+	// 3. Fallback to solid colorString
+	if (member.colorString) {
+		return member.colorString
+	}
+
+	return undefined
+}
+
 export function getTag(
 	guild?: DiscordGuild,
 	channel?: DiscordChannel,
@@ -165,18 +232,7 @@ export function getTag(
 			let roleColor: string | undefined
 
 			if (useRoleColor && guild?.id && user.id) {
-				const GuildMemberStore = Stores.GuildMemberStore as
-					| DiscordModules.Flux.Store<{
-							getMember(
-								guildId?: string,
-								userId?: string,
-							): DiscordGuildMember | undefined
-					  }>
-					| undefined
-				const member = GuildMemberStore?.getMember(guild.id, user.id)
-				if (member?.colorString) {
-					roleColor = member.colorString
-				}
+				roleColor = extractMemberRoleColor(guild.id, user.id)
 			}
 
 			const style = resolveTagStyle(tag, roleColor, useRoleColor, customConfig)

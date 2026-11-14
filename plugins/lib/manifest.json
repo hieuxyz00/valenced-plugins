@@ -4,7 +4,7 @@
 	"name": "Hieuxyz Lib",
 	"description": "A shared library for my plugins.",
 	"author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"icon": "WrenchIcon",
 	"enabledByDefault": true,
 	"dependencies": {

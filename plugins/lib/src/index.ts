@@ -4,7 +4,7 @@ import {
 	EMOJI_CATEGORIES,
 	EmojiPicker,
 } from './components/EmojiPicker'
-import { HtmlColorPicker } from './components/HtmlColorPicker'
+import { ColorPicker, HtmlColorPicker } from './components/HtmlColorPicker'
 import { LanguagePickerModal } from './components/LanguagePickerModal'
 import { PipModal } from './components/PipModal'
 import {
@@ -18,6 +18,7 @@ import {
 } from './math/color'
 
 export {
+	ColorPicker,
 	ColorPickerModal,
 	DEFAULT_DISCORD_ICONS,
 	EMOJI_CATEGORIES,
@@ -37,6 +38,7 @@ export {
 export const hieuxyzApi = {
 	PipModal,
 	ColorPickerModal,
+	ColorPicker,
 	HtmlColorPicker,
 	EmojiPicker,
 	LanguagePickerModal,

@@ -11,15 +11,17 @@ import {
 } from '../math/color'
 import type { GestureResponderEvent } from 'react-native'
 
-const { Button, Card, Text, TextInput } = Design
+const { Button, Card, Stack, Text, TextInput } = Design
 
-export interface HtmlColorPickerProps {
+export interface ColorPickerProps {
 	initialColor?: string
 	onSelect: (color: string) => void
 	onReset?: () => void
 	allowGradient?: boolean
 	onInteractionChange?: (isInteracting: boolean) => void
 }
+
+export type HtmlColorPickerProps = ColorPickerProps
 
 const CANVAS_WIDTH = 280
 const CANVAS_HEIGHT = 120
@@ -35,6 +37,8 @@ const QUICK_HUES = [
 	{ label: 'Purple', h: 280, hex: '#9B59B6' },
 	{ label: 'Pink', h: 330, hex: '#EB459E' },
 ]
+
+const GRADIENT_ANGLES = [45, 90, 135, 180]
 
 function parseInitialGradient(gradientStr?: string): {
 	angle: number
@@ -52,13 +56,18 @@ function parseInitialGradient(gradientStr?: string): {
 	return { angle, start, end }
 }
 
-export const HtmlColorPicker = memo(function HtmlColorPicker({
+/**
+ * Compact Interactive Visual Color Picker.
+ * Features 2D Saturation/Value canvas, Hue spectrum rainbow bar, quick hues,
+ * optional gradient mode, live swatch, and immediate Apply/Reset buttons.
+ */
+export const ColorPicker = memo(function ColorPicker({
 	initialColor = '#5865F2',
 	onSelect,
 	onReset,
 	allowGradient = true,
 	onInteractionChange,
-}: HtmlColorPickerProps) {
+}: ColorPickerProps) {
 	const safeInitialColor =
 		typeof initialColor === 'string' && initialColor ? initialColor : '#5865F2'
 	const isInitialGradient =
@@ -91,6 +100,7 @@ export const HtmlColorPicker = memo(function HtmlColorPicker({
 	const [hue, setHue] = useState<number>(initialHsv.h)
 	const [saturation, setSaturation] = useState<number>(initialHsv.s)
 	const [value, setValue] = useState<number>(initialHsv.v)
+	const [customText, setCustomText] = useState(safeInitialColor)
 
 	const hueRef = useRef(hue)
 	const saturationRef = useRef(saturation)
@@ -139,22 +149,49 @@ export const HtmlColorPicker = memo(function HtmlColorPicker({
 	)
 	const contrastText = useMemo(() => getContrastColor(currentHex), [currentHex])
 
+	const builtGradient = useMemo(
+		() =>
+			`linear-gradient(${gradientAngle}deg, ${gradientStart} 0%, ${gradientEnd} 100%)`,
+		[gradientAngle, gradientStart, gradientEnd],
+	)
+
+	// Updates internal state only without closing parent modal
 	const updateColorFromHsv = useCallback(
 		(h: number, s: number, v: number) => {
-			setHue(prevH => (prevH === h ? prevH : h))
-			setSaturation(prevS => (Math.abs(prevS - s) < 0.001 ? prevS : s))
-			setValue(prevV => (Math.abs(prevV - v) < 0.001 ? prevV : v))
-			const rgb = hsvToRgb(h, s, v)
+			const safeH = Math.round(Math.max(0, Math.min(360, h)))
+			const safeS = Math.max(0, Math.min(1, s))
+			const safeV = Math.max(0, Math.min(1, v))
+
+			setHue(safeH)
+			setSaturation(safeS)
+			setValue(safeV)
+
+			const rgb = hsvToRgb(safeH, safeS, safeV)
 			const hex = rgbToHex(rgb.r, rgb.g, rgb.b)
+
 			if (isGradientMode) {
 				if (activeGradientStop === 'start') {
-					setGradientStart(prev => (prev === hex ? prev : hex))
+					setGradientStart(hex)
+					setCustomText(
+						`linear-gradient(${gradientAngle}deg, ${hex} 0%, ${gradientEnd} 100%)`,
+					)
 				} else {
-					setGradientEnd(prev => (prev === hex ? prev : hex))
+					setGradientEnd(hex)
+					setCustomText(
+						`linear-gradient(${gradientAngle}deg, ${gradientStart} 0%, ${hex} 100%)`,
+					)
 				}
+			} else {
+				setCustomText(hex)
 			}
 		},
-		[activeGradientStop, isGradientMode],
+		[
+			activeGradientStop,
+			gradientAngle,
+			gradientEnd,
+			gradientStart,
+			isGradientMode,
+		],
 	)
 
 	const handleCanvasGrant = useCallback(
@@ -287,32 +324,27 @@ export const HtmlColorPicker = memo(function HtmlColorPicker({
 		[gradientStart, gradientEnd],
 	)
 
-	const toggleGradient = useCallback(() => {
-		setIsGradientMode(prev => {
-			const next = !prev
-			if (next) {
-				const rgb = hexToRgb(gradientStart)
+	const handleCustomTextChange = useCallback(
+		(text: string) => {
+			setCustomText(text)
+			const trimmed = text.trim()
+			if (trimmed.includes('gradient')) {
+				setIsGradientMode(true)
+				const parsed = parseInitialGradient(trimmed)
+				setGradientStart(parsed.start)
+				setGradientEnd(parsed.end)
+				setGradientAngle(parsed.angle)
+			} else if (trimmed.startsWith('#')) {
+				const rgb = hexToRgb(trimmed)
 				if (rgb) {
 					const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b)
-					setHue(hsv.h)
-					setSaturation(hsv.s)
-					setValue(hsv.v)
+					updateColorFromHsv(hsv.h, hsv.s, hsv.v)
 				}
-				setActiveGradientStop('start')
 			}
-			return next
-		})
-	}, [gradientStart])
+		},
+		[updateColorFromHsv],
+	)
 
-	const handleHexInput = (text: string) => {
-		const rgb = hexToRgb(text)
-		if (rgb) {
-			const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b)
-			updateColorFromHsv(hsv.h, hsv.s, hsv.v)
-		}
-	}
-
-	// Thumb coordinates
 	const thumbX = Math.max(
 		0,
 		Math.min(CANVAS_WIDTH - 16, saturation * CANVAS_WIDTH - 8),
@@ -326,519 +358,331 @@ export const HtmlColorPicker = memo(function HtmlColorPicker({
 		Math.min(SLIDER_WIDTH - 14, (hue / 360) * SLIDER_WIDTH - 7),
 	)
 
-	const builtGradient = `linear-gradient(${gradientAngle}deg, ${gradientStart} 0%, ${gradientEnd} 100%)`
-
 	return (
-		<View style={{ width: '100%', alignItems: 'center' }}>
-			{/* Optional Gradient Toggle Header */}
-			{allowGradient ? (
-				<View
-					style={{
-						flexDirection: 'row',
-						alignItems: 'center',
-						justifyContent: 'space-between',
-						width: '100%',
-						maxWidth: CANVAS_WIDTH,
-						marginBottom: 8,
-						paddingHorizontal: 2,
-					}}
-				>
-					<Text variant="text-xs/bold" color="header-secondary">
-						{isGradientMode ? 'CSS GRADIENT' : 'SOLID COLOR'}
-					</Text>
-					<Pressable
-						hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-						onPress={toggleGradient}
-						style={({ pressed }) => ({
+		<Stack spacing={14}>
+			{/* Gradient Mode Toggle & Direction Options */}
+			{allowGradient && (
+				<Card style={{ padding: 10 }}>
+					<View
+						style={{
 							flexDirection: 'row',
 							alignItems: 'center',
-							gap: 6,
-							paddingHorizontal: 10,
-							paddingVertical: 4,
-							borderRadius: 12,
-							backgroundColor: isGradientMode
-								? '#5865F2'
-								: pressed
-									? 'rgba(255, 255, 255, 0.16)'
-									: 'rgba(255, 255, 255, 0.08)',
-							borderWidth: 1,
-							borderColor: isGradientMode
-								? '#5865F2'
-								: 'rgba(255, 255, 255, 0.14)',
-							opacity: pressed ? 0.8 : 1,
-							transform: [{ scale: pressed ? 0.95 : 1 }],
-						})}
+							justifyContent: 'space-between',
+							marginBottom: isGradientMode ? 8 : 0,
+						}}
 					>
-						<View
-							style={{
-								width: 6,
-								height: 6,
-								borderRadius: 3,
-								backgroundColor: isGradientMode
-									? '#57F287'
-									: 'rgba(255, 255, 255, 0.35)',
+						<Text variant="text-xs/bold" color="header-secondary">
+							{isGradientMode ? 'CSS GRADIENT' : 'SOLID COLOR'}
+						</Text>
+						<Button
+							text={isGradientMode ? 'Gradient: On' : 'Enable Gradient'}
+							size="sm"
+							variant={isGradientMode ? 'primary' : 'secondary'}
+							onPress={() => {
+								const next = !isGradientMode
+								setIsGradientMode(next)
+								if (next) {
+									setCustomText(
+										`linear-gradient(${gradientAngle}deg, ${gradientStart} 0%, ${gradientEnd} 100%)`,
+									)
+								} else {
+									setCustomText(currentHex)
+								}
 							}}
 						/>
-						<Text
-							variant="text-xs/bold"
-							style={{
-								color: isGradientMode ? '#FFFFFF' : '#949BA4',
-								fontSize: 11,
-							}}
-						>
-							{isGradientMode ? 'Gradient: On' : 'Enable Gradient'}
-						</Text>
-					</Pressable>
-				</View>
-			) : null}
-
-			{/* In Gradient Mode: Live Banner & Interactive Stop Selector */}
-			{isGradientMode ? (
-				<View style={{ width: SLIDER_WIDTH, marginBottom: 8 }}>
-					{/* Live Gradient Preview Swatch (compact 32px height) */}
-					<View
-						style={[
-							{
-								height: 32,
-								borderRadius: 6,
-								borderWidth: 1,
-								borderColor: 'rgba(255, 255, 255, 0.2)',
-								marginBottom: 6,
-								justifyContent: 'center',
-								alignItems: 'center',
-							},
-							{ experimental_backgroundImage: builtGradient },
-						]}
-					>
-						<Text
-							style={{
-								color: '#FFFFFF',
-								fontWeight: '700',
-								fontSize: 11,
-								textShadowColor: 'rgba(0,0,0,0.7)',
-								textShadowRadius: 3,
-								textShadowOffset: { width: 0, height: 1 },
-							}}
-						>
-							{gradientStart} ➜ {gradientEnd} ({gradientAngle}°)
-						</Text>
 					</View>
 
-					{/* Stop Selector: compact stop button sizes */}
-					<View style={{ flexDirection: 'row', gap: 6, marginBottom: 6 }}>
-						<Pressable
-							hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-							onPress={() => selectGradientStop('start')}
-							style={({ pressed }) => ({
-								flex: 1,
-								flexDirection: 'row',
-								alignItems: 'center',
-								padding: 6,
-								borderRadius: 6,
-								backgroundColor:
-									activeGradientStop === 'start'
-										? 'rgba(88, 101, 242, 0.28)'
-										: pressed
-											? 'rgba(255, 255, 255, 0.12)'
-											: 'rgba(255, 255, 255, 0.06)',
-								borderWidth: activeGradientStop === 'start' ? 2 : 1,
-								borderColor:
-									activeGradientStop === 'start'
-										? '#5865F2'
-										: 'rgba(255, 255, 255, 0.1)',
-								opacity: pressed ? 0.8 : 1,
-								transform: [{ scale: pressed ? 0.96 : 1 }],
-							})}
-						>
-							<View
-								style={{
-									width: 18,
-									height: 18,
-									borderRadius: 4,
-									backgroundColor: gradientStart,
-									borderWidth: 1,
-									borderColor: '#FFFFFF',
-									marginRight: 6,
-								}}
-							/>
-							<View style={{ flex: 1 }}>
-								<Text
-									variant="text-xs/bold"
-									style={{
-										color:
-											activeGradientStop === 'start' ? '#FFFFFF' : '#949BA4',
-										fontSize: 11,
-									}}
-								>
-									Start Color
-								</Text>
-								<Text
-									variant="text-xs/normal"
-									style={{ color: '#DBDEE1', fontSize: 10 }}
-								>
-									{gradientStart}
-								</Text>
+					{isGradientMode && (
+						<Stack spacing={8}>
+							{/* Stop Selector: Start Color vs End Color */}
+							<View style={{ flexDirection: 'row', gap: 8 }}>
+								<View style={{ flex: 1 }}>
+									<Button
+										text={`Start: ${gradientStart}`}
+										size="sm"
+										variant={
+											activeGradientStop === 'start' ? 'primary' : 'secondary'
+										}
+										onPress={() => selectGradientStop('start')}
+									/>
+								</View>
+								<View style={{ flex: 1 }}>
+									<Button
+										text={`End: ${gradientEnd}`}
+										size="sm"
+										variant={
+											activeGradientStop === 'end' ? 'primary' : 'secondary'
+										}
+										onPress={() => selectGradientStop('end')}
+									/>
+								</View>
 							</View>
-						</Pressable>
 
-						<Pressable
-							hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-							onPress={() => selectGradientStop('end')}
-							style={({ pressed }) => ({
-								flex: 1,
-								flexDirection: 'row',
-								alignItems: 'center',
-								padding: 6,
-								borderRadius: 6,
-								backgroundColor:
-									activeGradientStop === 'end'
-										? 'rgba(88, 101, 242, 0.28)'
-										: pressed
-											? 'rgba(255, 255, 255, 0.12)'
-											: 'rgba(255, 255, 255, 0.06)',
-								borderWidth: activeGradientStop === 'end' ? 2 : 1,
-								borderColor:
-									activeGradientStop === 'end'
-										? '#5865F2'
-										: 'rgba(255, 255, 255, 0.1)',
-								opacity: pressed ? 0.8 : 1,
-								transform: [{ scale: pressed ? 0.96 : 1 }],
-							})}
-						>
-							<View
-								style={{
-									width: 18,
-									height: 18,
-									borderRadius: 4,
-									backgroundColor: gradientEnd,
-									borderWidth: 1,
-									borderColor: '#FFFFFF',
-									marginRight: 6,
-								}}
-							/>
-							<View style={{ flex: 1 }}>
-								<Text
-									variant="text-xs/bold"
-									style={{
-										color: activeGradientStop === 'end' ? '#FFFFFF' : '#949BA4',
-										fontSize: 11,
-									}}
-								>
-									End Color
-								</Text>
-								<Text
-									variant="text-xs/normal"
-									style={{ color: '#DBDEE1', fontSize: 10 }}
-								>
-									{gradientEnd}
-								</Text>
+							{/* Gradient Angle Buttons */}
+							<View style={{ flexDirection: 'row', gap: 6 }}>
+								{GRADIENT_ANGLES.map(deg => (
+									<View key={deg} style={{ flex: 1 }}>
+										<Button
+											text={`${deg}°`}
+											size="sm"
+											variant={gradientAngle === deg ? 'primary' : 'secondary'}
+											onPress={() => {
+												setGradientAngle(deg)
+												setCustomText(
+													`linear-gradient(${deg}deg, ${gradientStart} 0%, ${gradientEnd} 100%)`,
+												)
+											}}
+										/>
+									</View>
+								))}
 							</View>
-						</Pressable>
-					</View>
+						</Stack>
+					)}
+				</Card>
+			)}
 
-					{/* Direction Angles */}
-					<View style={{ flexDirection: 'row', gap: 6, marginBottom: 2 }}>
-						{[45, 90, 135, 180].map(angle => (
-							<Pressable
-								key={angle}
-								hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
-								onPress={() => setGradientAngle(angle)}
-								style={({ pressed }) => ({
-									flex: 1,
-									paddingVertical: 4,
-									borderRadius: 6,
-									backgroundColor:
-										gradientAngle === angle
-											? '#5865F2'
-											: pressed
-												? 'rgba(255, 255, 255, 0.15)'
-												: 'rgba(255, 255, 255, 0.08)',
-									alignItems: 'center',
-									opacity: pressed ? 0.8 : 1,
-									transform: [{ scale: pressed ? 0.94 : 1 }],
-								})}
-							>
-								<Text
-									variant="text-xs/normal"
-									style={{
-										color: gradientAngle === angle ? '#FFFFFF' : '#DBDEE1',
-										fontSize: 11,
-									}}
-								>
-									{angle}°
-								</Text>
-							</Pressable>
-						))}
-					</View>
-				</View>
-			) : null}
-
-			{/* 2D Saturation / Value Gradient Canvas (Active for both solid & gradient stop) */}
-			<View
-				ref={canvasRef}
-				onLayout={onCanvasLayout}
-				onStartShouldSetResponder={() => true}
-				onStartShouldSetResponderCapture={() => true}
-				onMoveShouldSetResponder={() => true}
-				onMoveShouldSetResponderCapture={() => true}
-				onResponderTerminationRequest={() => false}
-				onResponderGrant={handleCanvasGrant}
-				onResponderMove={handleCanvasMove}
-				onResponderRelease={handleCanvasEnd}
-				onResponderTerminate={handleCanvasEnd}
-				hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-				style={{
-					width: CANVAS_WIDTH,
-					height: CANVAS_HEIGHT,
-					borderRadius: 10,
-					overflow: 'hidden',
-					backgroundColor: `hsl(${hue}, 100%, 50%)`,
-					position: 'relative',
-					borderWidth: 1,
-					borderColor: 'rgba(255, 255, 255, 0.15)',
-					marginBottom: 8,
-				}}
-			>
-				{/* Horizontal White-to-transparent Saturation overlay */}
+			{/* Interactive 2D Spectrum & Clean Rainbow Hue Bar Card */}
+			<Card style={{ padding: 12, alignItems: 'center' }}>
+				{/* 2D Saturation / Value Gradient Canvas */}
 				<View
-					pointerEvents="none"
-					style={[
-						{
-							position: 'absolute',
-							top: 0,
-							left: 0,
-							right: 0,
-							bottom: 0,
-						},
-						{
-							experimental_backgroundImage:
-								'linear-gradient(90deg, #FFFFFF 0%, rgba(255,255,255,0) 100%)',
-						},
-					]}
-				/>
-
-				{/* Vertical Transparent-to-black Value overlay */}
-				<View
-					pointerEvents="none"
-					style={[
-						{
-							position: 'absolute',
-							top: 0,
-							left: 0,
-							right: 0,
-							bottom: 0,
-						},
-						{
-							experimental_backgroundImage:
-								'linear-gradient(180deg, rgba(0,0,0,0) 0%, #000000 100%)',
-						},
-					]}
-				/>
-
-				{/* Picker Ring Indicator Thumb */}
-				<View
-					pointerEvents="none"
-					style={{
-						position: 'absolute',
-						left: thumbX,
-						top: thumbY,
-						width: 16,
-						height: 16,
-						borderRadius: 8,
-						borderWidth: 2,
-						borderColor: '#FFFFFF',
-						backgroundColor: currentHex,
-						shadowColor: '#000000',
-						shadowOpacity: 0.8,
-						shadowRadius: 3,
-						shadowOffset: { width: 0, height: 1 },
-						elevation: 4,
-					}}
-				/>
-			</View>
-
-			{/* Hue Spectrum Rainbow Bar */}
-			<View style={{ width: SLIDER_WIDTH, marginBottom: 8 }}>
-				<View
-					ref={hueSliderRef}
-					onLayout={onHueLayout}
+					ref={canvasRef}
+					onLayout={onCanvasLayout}
 					onStartShouldSetResponder={() => true}
 					onStartShouldSetResponderCapture={() => true}
 					onMoveShouldSetResponder={() => true}
 					onMoveShouldSetResponderCapture={() => true}
 					onResponderTerminationRequest={() => false}
-					onResponderGrant={handleHueGrant}
-					onResponderMove={handleHueMove}
-					onResponderRelease={handleHueEnd}
-					onResponderTerminate={handleHueEnd}
-					hitSlop={{ top: 16, bottom: 16, left: 10, right: 10 }}
-					style={[
-						{
-							width: SLIDER_WIDTH,
-							height: 16,
-							borderRadius: 8,
-							borderWidth: 1,
-							borderColor: 'rgba(255, 255, 255, 0.15)',
-							position: 'relative',
-							justifyContent: 'center',
-						},
-						{
-							experimental_backgroundImage:
-								'linear-gradient(90deg, #FF0000 0%, #FFFF00 17%, #00FF00 33%, #00FFFF 50%, #0000FF 67%, #FF00FF 83%, #FF0000 100%)',
-						},
-					]}
+					onResponderGrant={handleCanvasGrant}
+					onResponderMove={handleCanvasMove}
+					onResponderRelease={handleCanvasEnd}
+					onResponderTerminate={handleCanvasEnd}
+					hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+					style={{
+						width: CANVAS_WIDTH,
+						height: CANVAS_HEIGHT,
+						borderRadius: 10,
+						overflow: 'hidden',
+						backgroundColor: `hsl(${hue}, 100%, 50%)`,
+						position: 'relative',
+						borderWidth: 1,
+						borderColor: 'rgba(255, 255, 255, 0.2)',
+						marginBottom: 10,
+					}}
 				>
-					{/* Hue Slider Thumb */}
+					{/* Horizontal White-to-transparent Saturation overlay */}
+					<View
+						pointerEvents="none"
+						style={[
+							{
+								position: 'absolute',
+								top: 0,
+								left: 0,
+								right: 0,
+								bottom: 0,
+							},
+							{
+								experimental_backgroundImage:
+									'linear-gradient(90deg, #FFFFFF 0%, rgba(255,255,255,0) 100%)',
+							},
+						]}
+					/>
+
+					{/* Vertical Transparent-to-black Value overlay */}
+					<View
+						pointerEvents="none"
+						style={[
+							{
+								position: 'absolute',
+								top: 0,
+								left: 0,
+								right: 0,
+								bottom: 0,
+							},
+							{
+								experimental_backgroundImage:
+									'linear-gradient(180deg, rgba(0,0,0,0) 0%, #000000 100%)',
+							},
+						]}
+					/>
+
+					{/* Ring Indicator Thumb */}
 					<View
 						pointerEvents="none"
 						style={{
 							position: 'absolute',
-							left: hueThumbX,
-							width: 14,
-							height: 14,
-							borderRadius: 7,
+							left: thumbX,
+							top: thumbY,
+							width: 16,
+							height: 16,
+							borderRadius: 8,
 							borderWidth: 2,
 							borderColor: '#FFFFFF',
-							backgroundColor: `hsl(${hue}, 100%, 50%)`,
-							shadowColor: '#000',
-							shadowOpacity: 0.6,
-							shadowRadius: 3,
-							elevation: 3,
+							backgroundColor: currentHex,
+							elevation: 4,
 						}}
 					/>
 				</View>
-			</View>
 
-			{/* Quick Hues Shortcuts */}
-			<View
-				style={{
-					flexDirection: 'row',
-					gap: 6,
-					marginBottom: 8,
-					width: SLIDER_WIDTH,
-					justifyContent: 'space-between',
-				}}
-			>
-				{QUICK_HUES.map(item => (
-					<Pressable
-						key={item.label}
-						hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
-						onPress={() => updateColorFromHsv(item.h, 1, 1)}
-						style={({ pressed }) => ({
-							width: 22,
-							height: 22,
-							borderRadius: 11,
-							backgroundColor: item.hex,
-							borderWidth: Math.abs(hue - item.h) < 15 ? 2 : 1,
-							borderColor:
-								Math.abs(hue - item.h) < 15 ? '#FFFFFF' : 'rgba(0,0,0,0.3)',
-							transform: [{ scale: pressed ? 0.88 : 1 }],
-						})}
-					/>
-				))}
-			</View>
-
-			{/* Swatch & Input Card with compact single-line specs */}
-			<Card
-				style={{
-					width: SLIDER_WIDTH,
-					padding: 8,
-					marginBottom: 8,
-					backgroundColor: '#2B2D31',
-				}}
-			>
-				<View
-					style={{
-						flexDirection: 'row',
-						alignItems: 'center',
-						gap: 10,
-						marginBottom: 6,
-					}}
-				>
+				{/* Clean Hue Spectrum Bar */}
+				<View style={{ width: SLIDER_WIDTH, marginBottom: 12 }}>
 					<View
-						style={{
-							width: 36,
-							height: 36,
-							borderRadius: 6,
-							backgroundColor: currentHex,
-							borderWidth: 1,
-							borderColor: 'rgba(255, 255, 255, 0.2)',
-							justifyContent: 'center',
-							alignItems: 'center',
-						}}
+						ref={hueSliderRef}
+						onLayout={onHueLayout}
+						onStartShouldSetResponder={() => true}
+						onStartShouldSetResponderCapture={() => true}
+						onMoveShouldSetResponder={() => true}
+						onMoveShouldSetResponderCapture={() => true}
+						onResponderTerminationRequest={() => false}
+						onResponderGrant={handleHueGrant}
+						onResponderMove={handleHueMove}
+						onResponderRelease={handleHueEnd}
+						onResponderTerminate={handleHueEnd}
+						hitSlop={{ top: 14, bottom: 14, left: 10, right: 10 }}
+						style={[
+							{
+								width: SLIDER_WIDTH,
+								height: 16,
+								borderRadius: 8,
+								borderWidth: 1,
+								borderColor: 'rgba(255, 255, 255, 0.2)',
+								position: 'relative',
+								justifyContent: 'center',
+							},
+							{
+								experimental_backgroundImage:
+									'linear-gradient(90deg, #FF0000 0%, #FFFF00 17%, #00FF00 33%, #00FFFF 50%, #0000FF 67%, #FF00FF 83%, #FF0000 100%)',
+							},
+						]}
 					>
-						<Text
+						{/* Hue Thumb */}
+						<View
+							pointerEvents="none"
 							style={{
-								color: contrastText,
-								fontSize: 9,
-								fontWeight: '700',
+								position: 'absolute',
+								left: hueThumbX,
+								width: 14,
+								height: 14,
+								borderRadius: 7,
+								borderWidth: 2,
+								borderColor: '#FFFFFF',
+								backgroundColor: `hsl(${hue}, 100%, 50%)`,
+								elevation: 3,
 							}}
-						>
-							HEX
-						</Text>
-					</View>
-					<View style={{ flex: 1 }}>
-						<TextInput
-							label={
-								isGradientMode
-									? `Tuning ${activeGradientStop === 'start' ? 'Start' : 'End'} Color`
-									: 'HEX Color'
-							}
-							value={currentHex}
-							onChange={handleHexInput}
 						/>
 					</View>
 				</View>
 
-				{/* Compact Single-line RGB, HSV, HSL Specs */}
+				{/* Quick Hue Presets */}
 				<View
 					style={{
 						flexDirection: 'row',
 						justifyContent: 'space-between',
-						alignItems: 'center',
-						paddingTop: 5,
-						borderTopWidth: 1,
-						borderTopColor: 'rgba(255, 255, 255, 0.08)',
+						width: SLIDER_WIDTH,
 					}}
 				>
-					<Text
-						variant="text-xs/normal"
-						style={{ color: '#949BA4', fontSize: 10 }}
-					>
-						RGB{' '}
-						<Text style={{ color: '#FFFFFF', fontWeight: '600' }}>
-							{currentRgb.r},{currentRgb.g},{currentRgb.b}
-						</Text>
-					</Text>
-					<Text
-						variant="text-xs/normal"
-						style={{ color: '#949BA4', fontSize: 10 }}
-					>
-						HSV{' '}
-						<Text style={{ color: '#FFFFFF', fontWeight: '600' }}>
-							{hue}°,{Math.round(saturation * 100)}%,{Math.round(value * 100)}%
-						</Text>
-					</Text>
-					<Text
-						variant="text-xs/normal"
-						style={{ color: '#949BA4', fontSize: 10 }}
-					>
-						HSL{' '}
-						<Text style={{ color: '#FFFFFF', fontWeight: '600' }}>
-							{currentHsl.h}°,{currentHsl.s}%,{currentHsl.l}%
-						</Text>
-					</Text>
+					{QUICK_HUES.map(item => (
+						<Pressable
+							key={item.label}
+							hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
+							onPress={() => updateColorFromHsv(item.h, 1, 1)}
+							style={({ pressed }) => ({
+								width: 24,
+								height: 24,
+								borderRadius: 12,
+								backgroundColor: item.hex,
+								borderWidth: Math.abs(hue - item.h) < 15 ? 2 : 1,
+								borderColor:
+									Math.abs(hue - item.h) < 15
+										? '#FFFFFF'
+										: 'rgba(0, 0, 0, 0.4)',
+								transform: [{ scale: pressed ? 0.9 : 1 }],
+							})}
+						/>
+					))}
 				</View>
 			</Card>
 
-			{/* Action Buttons */}
-			<View
-				style={{
-					flexDirection: 'row',
-					gap: 8,
-					width: SLIDER_WIDTH,
-				}}
-			>
+			{/* Color Swatch & Custom Input Card */}
+			<Card style={{ padding: 12 }}>
+				<Stack spacing={8}>
+					<View
+						style={[
+							{
+								height: 42,
+								borderRadius: 8,
+								justifyContent: 'center',
+								alignItems: 'center',
+								borderWidth: 1,
+								borderColor: 'rgba(255, 255, 255, 0.25)',
+							},
+							isGradientMode
+								? { experimental_backgroundImage: builtGradient }
+								: { backgroundColor: currentHex },
+						]}
+					>
+						<Text
+							style={{
+								color: isGradientMode ? '#FFFFFF' : contrastText,
+								fontWeight: '700',
+								fontSize: 13,
+								textShadowColor: isGradientMode
+									? 'rgba(0, 0, 0, 0.75)'
+									: undefined,
+								textShadowOffset: isGradientMode
+									? { width: 0, height: 1 }
+									: undefined,
+								textShadowRadius: isGradientMode ? 3 : undefined,
+							}}
+						>
+							{isGradientMode
+								? `${gradientStart} ➜ ${gradientEnd} (${gradientAngle}°)`
+								: currentHex}
+						</Text>
+					</View>
+
+					<TextInput
+						label={
+							isGradientMode
+								? `Custom Gradient (${activeGradientStop === 'start' ? 'Start' : 'End'} stop)`
+								: 'Custom Hex Color'
+						}
+						value={customText}
+						onChange={handleCustomTextChange}
+					/>
+
+					<View
+						style={{
+							flexDirection: 'row',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							paddingTop: 4,
+						}}
+					>
+						<Text variant="text-xs/normal" color="text-muted">
+							RGB:{' '}
+							<Text style={{ color: '#FFFFFF', fontWeight: '600' }}>
+								{currentRgb.r}, {currentRgb.g}, {currentRgb.b}
+							</Text>
+						</Text>
+						<Text variant="text-xs/normal" color="text-muted">
+							HSV:{' '}
+							<Text style={{ color: '#FFFFFF', fontWeight: '600' }}>
+								{hue}°, {Math.round(saturation * 100)}%,{' '}
+								{Math.round(value * 100)}%
+							</Text>
+						</Text>
+						<Text variant="text-xs/normal" color="text-muted">
+							HSL:{' '}
+							<Text style={{ color: '#FFFFFF', fontWeight: '600' }}>
+								{currentHsl.h}°, {currentHsl.s}%, {currentHsl.l}%
+							</Text>
+						</Text>
+					</View>
+				</Stack>
+			</Card>
+
+			{/* Immediate Action Buttons: Apply and Reset */}
+			<View style={{ flexDirection: 'row', gap: 8, paddingBottom: 8 }}>
 				<View style={{ flex: 1 }}>
 					<Button
 						text={isGradientMode ? 'Apply Gradient' : 'Apply Color'}
@@ -848,10 +692,12 @@ export const HtmlColorPicker = memo(function HtmlColorPicker({
 						}
 					/>
 				</View>
-				{onReset ? (
-					<Button text="Reset" variant="secondary" onPress={onReset} />
-				) : null}
+				{onReset && (
+					<Button text="Reset" variant="destructive" onPress={onReset} />
+				)}
 			</View>
-		</View>
+		</Stack>
 	)
 })
+
+export const HtmlColorPicker = ColorPicker

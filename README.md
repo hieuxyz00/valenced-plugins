@@ -55,6 +55,12 @@ bun run lint
 
 - **hieuxyz** ([@hieuxyz00](https://github.com/hieuxyz00))
 
+## Contributors
+
+- **hieuxyz** ([@hieuxyz00](https://github.com/hieuxyz00)) - Author & Maintainer
+- **Antigravity** (Google DeepMind)
+- **Claude Opus 5.5** (Anthropic)
+
 ## Note
 
 > [!NOTE]
