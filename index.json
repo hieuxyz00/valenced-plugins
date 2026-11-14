@@ -13,7 +13,7 @@
       },
       "versions": {
         "1.0.0": {
-          "url": "https://hieuxyz00.github.io/valenced-plugins/hieuxyz.bypass-nsfw-gate@1.0.0.zip",
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.bypass-nsfw-gate@1.0.0.zip",
           "sha256": "44fd22e4b313224fd812738d5f43f3864a12ff10a0d7794471d9609524b7a562",
           "size": 1835,
           "dependencies": {
@@ -37,7 +37,7 @@
       },
       "versions": {
         "1.0.0": {
-          "url": "https://hieuxyz00.github.io/valenced-plugins/hieuxyz.lib@1.0.0.zip",
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.lib@1.0.0.zip",
           "sha256": "d81b21695b0a3377f064fe644ed8045cdda769a560d5cd0cfaba35056ca697a3",
           "size": 8936,
           "dependencies": {
@@ -61,7 +61,7 @@
       },
       "versions": {
         "1.0.0": {
-          "url": "https://hieuxyz00.github.io/valenced-plugins/hieuxyz.staff-tags@1.0.0.zip",
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.staff-tags@1.0.0.zip",
           "sha256": "f4e6d442406687992412b379a653d36352fc07afe0f859d79dac2d8999ccffdd",
           "size": 28056,
           "dependencies": {
@@ -88,7 +88,7 @@
       },
       "versions": {
         "1.0.0": {
-          "url": "https://hieuxyz00.github.io/valenced-plugins/hieuxyz.translator@1.0.0.zip",
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.translator@1.0.0.zip",
           "sha256": "2838476bf22bb5f6ea8fc8ef41670175888b88f29b1c18a996f855ed74a12b71",
           "size": 10798,
           "dependencies": {
