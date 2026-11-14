@@ -3,30 +3,6 @@
   "name": "hieuxyz's Plugins",
   "description": "Custom plugins for Valenced Discord by hieuxyz.",
   "plugins": {
-    "hieuxyz.bypass-nsfw-gate": {
-      "name": "BypassNSFWGate",
-      "description": "Bypass NSFW channel and age-restricted server verification gates.",
-      "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
-      "icon": "EyeIcon",
-      "channels": {
-        "latest": "1.0.0"
-      },
-      "versions": {
-        "1.0.0": {
-          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.bypass-nsfw-gate@1.0.0.zip",
-          "sha256": "44fd22e4b313224fd812738d5f43f3864a12ff10a0d7794471d9609524b7a562",
-          "size": 1835,
-          "dependencies": {
-            "valenced.api": {
-              "version": ">=1 <2"
-            },
-            "discord": {
-              "version": "*"
-            }
-          }
-        }
-      }
-    },
     "hieuxyz.lib": {
       "name": "Hieuxyz Lib",
       "description": "A shared library for my plugins.",
