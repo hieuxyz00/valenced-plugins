@@ -13,7 +13,12 @@ bun run generate-index \
     --out "$POOL_CHECKOUT/index.json"
 
 # Stage the pool too, so a manually deleted artifact also gets deleted with the updated index.
-git -C "$POOL_CHECKOUT" add pool index.json
+if [ -f "$(dirname "${BASH_SOURCE[0]}")/../pages/index.html" ]; then
+    cp "$(dirname "${BASH_SOURCE[0]}")/../pages/index.html" "$POOL_CHECKOUT/index.html"
+    git -C "$POOL_CHECKOUT" add pool index.json index.html
+else
+    git -C "$POOL_CHECKOUT" add pool index.json
+fi
 commit_pool \
     "${UNCHANGED_MESSAGE:-Index already matches the pool.}" \
     "${COMMIT_MESSAGE:-Regenerate repository index}"

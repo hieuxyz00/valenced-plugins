@@ -31,7 +31,12 @@ attempt_publish() {
         --base-url "${base}/pool" \
         --out "$POOL_CHECKOUT/index.json" || return 1
 
-    git -C "$POOL_CHECKOUT" add pool index.json || return 1
+    if [ -f "$(dirname "${BASH_SOURCE[0]}")/../pages/index.html" ]; then
+        cp "$(dirname "${BASH_SOURCE[0]}")/../pages/index.html" "$POOL_CHECKOUT/index.html"
+        git -C "$POOL_CHECKOUT" add pool index.json index.html || return 1
+    else
+        git -C "$POOL_CHECKOUT" add pool index.json || return 1
+    fi
     commit_pool "Pool already holds this plan." "Publish ${count} plugin release(s)"
 }
 
