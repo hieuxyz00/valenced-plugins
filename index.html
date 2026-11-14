@@ -4,27 +4,340 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>hieuxyz's Valenced Plugins</title>
+  <meta name="description" content="Custom plugins repository for Valenced Discord by hieuxyz.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235865F2'><path d='M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8.5 7A1.5 1.5 0 117 8.5 1.5 1.5 0 018.5 7zm7 10h-7a1 1 0 010-2h7a1 1 0 010 2zm1.5-4h-10a1 1 0 010-2h10a1 1 0 010 2z'/></svg>">
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 650px; margin: 40px auto; padding: 0 16px; line-height: 1.6; color: #333; background: #fafafa; }
-    h1 { color: #5865F2; }
-    code { background: #e3e5e8; padding: 2px 6px; border-radius: 4px; }
-    a { color: #5865F2; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .card { background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+    :root {
+      --bg-primary: #1e1f22;
+      --bg-secondary: #2b2d31;
+      --bg-tertiary: #313338;
+      --text-normal: #dbdee1;
+      --text-muted: #949ba4;
+      --text-header: #f2f3f5;
+      --blurple: #5865f2;
+      --blurple-hover: #4752c4;
+      --green: #23a55a;
+      --card-border: rgba(255, 255, 255, 0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-normal);
+      line-height: 1.5;
+      padding: 32px 16px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      max-width: 760px;
+      width: 100%;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    h1 {
+      color: var(--text-header);
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+    .repo-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+    .repo-card h2 {
+      font-size: 1.1rem;
+      color: var(--text-header);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .instruction {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .instruction strong {
+      color: var(--text-normal);
+    }
+    .url-box {
+      display: flex;
+      gap: 8px;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 6px 12px;
+      align-items: center;
+    }
+    .url-text {
+      flex: 1;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.88rem;
+      color: #00a8fc;
+      overflow-x: auto;
+      white-space: nowrap;
+      user-select: all;
+    }
+    .copy-btn {
+      background-color: var(--blurple);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+      white-space: nowrap;
+    }
+    .copy-btn:hover {
+      background-color: var(--blurple-hover);
+    }
+    .copy-btn.copied {
+      background-color: var(--green);
+    }
+    .section-title {
+      font-size: 1.25rem;
+      color: var(--text-header);
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .plugin-count {
+      font-size: 0.85rem;
+      background-color: var(--bg-tertiary);
+      color: var(--text-muted);
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+    .plugins-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .plugin-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: transform 0.1s ease, border-color 0.15s ease;
+    }
+    .plugin-card:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+    .plugin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .plugin-name {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text-header);
+    }
+    .version-badge {
+      background-color: rgba(88, 101, 242, 0.2);
+      color: #a5b4fc;
+      border: 1px solid rgba(88, 101, 242, 0.4);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .plugin-id {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .plugin-desc {
+      color: var(--text-normal);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+    .plugin-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .download-link {
+      color: var(--blurple);
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .download-link:hover {
+      text-decoration: underline;
+    }
+    footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: auto;
+      padding-top: 24px;
+    }
+    footer a {
+      color: var(--text-normal);
+      text-decoration: none;
+    }
+    footer a:hover {
+      color: var(--blurple);
+      text-decoration: underline;
+    }
+    .loading-state, .error-state {
+      text-align: center;
+      padding: 32px;
+      color: var(--text-muted);
+      background-color: var(--bg-secondary);
+      border-radius: 10px;
+      border: 1px dashed var(--card-border);
+    }
   </style>
 </head>
 <body>
-  <h1>hieuxyz's Valenced Plugins</h1>
-  <p>To add this repository to Valenced Discord, copy this URL and paste it into <strong>Plugins &gt; Repositories &gt; Add Repository</strong>:</p>
-  <p><code>https://hieuxyz00.github.io/valenced-plugins/index.json</code></p>
-  <div class="card">
-    <h3>Plugins Available:</h3>
-    <ul>
-      <li><strong>Translator</strong>: Translator message in chat with auto-translate toggle, provider selection, and custom channel overrides.</li>
-      <li><strong>Staff Tags</strong>: Custom staff tags and badges for Discord members.</li>
-      <li><strong>Hieuxyz Lib</strong>: Shared utilities and components.</li>
-    </ul>
-    <p><a href="https://github.com/hieuxyz00/valenced-plugins">View Source on GitHub</a></p>
+  <div class="container">
+    <header>
+      <h1>hieuxyz's Plugins</h1>
+      <p class="subtitle">Custom plugins repository for Valenced Discord</p>
+    </header>
+
+    <div class="repo-card">
+      <h2>📦 Add to Valenced</h2>
+      <p class="instruction">
+        In Discord mobile, open <strong>Settings &gt; Valenced &gt; Plugins &gt; ⚙️ Repositories &gt; Add Repository</strong> and enter this URL:
+      </p>
+      <div class="url-box">
+        <span class="url-text" id="repoUrl">https://hieuxyz00.github.io/valenced-plugins/index.json</span>
+        <button class="copy-btn" id="copyBtn" onclick="copyRepoUrl()">Copy URL</button>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <span>Available Plugins</span>
+      <span class="plugin-count" id="pluginCount">Loading...</span>
+    </div>
+
+    <div class="plugins-grid" id="pluginsContainer">
+      <div class="loading-state" id="loadingState">
+        Loading plugins list from index.json...
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        Repository maintained by <strong>hieuxyz</strong> &bull;
+        <a href="https://github.com/hieuxyz00/valenced-plugins" target="_blank" rel="noopener">View Source on GitHub</a>
+      </p>
+    </footer>
   </div>
+
+  <script>
+    function copyRepoUrl() {
+      const urlText = document.getElementById('repoUrl').innerText;
+      navigator.clipboard.writeText(urlText).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.innerText = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.innerText = 'Copy URL';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    async function loadPlugins() {
+      const container = document.getElementById('pluginsContainer');
+      const countBadge = document.getElementById('pluginCount');
+      
+      try {
+        const res = await fetch('./index.json?t=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        
+        const plugins = data.plugins || {};
+        const pluginEntries = Object.entries(plugins);
+        
+        countBadge.innerText = `${pluginEntries.length} plugin${pluginEntries.length === 1 ? '' : 's'}`;
+        
+        if (pluginEntries.length === 0) {
+          container.innerHTML = '<div class="loading-state">No plugins available in this repository.</div>';
+          return;
+        }
+
+        container.innerHTML = '';
+        for (const [id, info] of pluginEntries) {
+          const latestVersion = info.channels?.latest || Object.keys(info.versions || {})[0] || '1.0.0';
+          const versionData = info.versions?.[latestVersion] || {};
+          const downloadUrl = versionData.url || `./pool/${id}@${latestVersion}.zip`;
+          
+          let authorName = info.author || '';
+          if (authorName.includes('<')) {
+            authorName = authorName.split('<')[0].trim();
+          }
+
+          const card = document.createElement('div');
+          card.className = 'plugin-card';
+          card.innerHTML = `
+            <div class="plugin-header">
+              <span class="plugin-name">${escapeHtml(info.name || id)}</span>
+              <span class="version-badge">v${escapeHtml(latestVersion)}</span>
+            </div>
+            <div class="plugin-id">${escapeHtml(id)}</div>
+            <div class="plugin-desc">${escapeHtml(info.description || 'No description provided.')}</div>
+            <div class="plugin-footer">
+              <span>Author: ${escapeHtml(authorName || 'hieuxyz')}</span>
+              <a href="${escapeHtml(downloadUrl)}" class="download-link" download>Download .zip</a>
+            </div>
+          `;
+          container.appendChild(card);
+        }
+      } catch (err) {
+        countBadge.innerText = 'Error';
+        container.innerHTML = `
+          <div class="error-state">
+            <p>Failed to load plugins from index.json (${err.message}).</p>
+            <p style="margin-top: 8px;"><a href="./index.json" style="color: var(--blurple);">View raw index.json</a></p>
+          </div>
+        `;
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    loadPlugins();
+  </script>
 </body>
 </html>
