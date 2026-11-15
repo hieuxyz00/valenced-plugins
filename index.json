@@ -9,13 +9,30 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "ShareIcon",
       "channels": {
-        "latest": "1.0.0"
+        "latest": "1.0.1"
       },
       "versions": {
         "1.0.0": {
           "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.export-messages@1.0.0.zip",
           "sha256": "3d593b53181b5639abb8e4869ecd810ae1b148428d73f1b4310a56c6d1132835",
           "size": 14719,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "hieuxyz.lib": {
+              "version": ">=1.0.2 <2",
+              "optional": true
+            }
+          }
+        },
+        "1.0.1": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.export-messages@1.0.1.zip",
+          "sha256": "a3c499f6cf520518988765e13575fda37892f7c28c07d072b89e0a6cd57ab194",
+          "size": 14688,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
@@ -124,7 +141,7 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "ShieldUserIcon",
       "channels": {
-        "latest": "1.0.1"
+        "latest": "1.0.2"
       },
       "versions": {
         "1.0.0": {
@@ -147,6 +164,22 @@
           "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.staff-tags@1.0.1.zip",
           "sha256": "e08b6529b1abb5b066c6e013be0682147f07c3a5f1cbd1f3c3fdd63d27fd0277",
           "size": 28166,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "hieuxyz.lib": {
+              "version": ">=1 <2"
+            }
+          }
+        },
+        "1.0.2": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.staff-tags@1.0.2.zip",
+          "sha256": "ffe6758f3eead69c5413f951649dacb2fbc7fab4cf2c06f462ec5315534d0c34",
+          "size": 28189,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
