@@ -3,13 +3,41 @@
   "name": "hieuxyz's Plugins",
   "description": "Custom plugins for Valenced Discord by hieuxyz.",
   "plugins": {
+    "hieuxyz.export-messages": {
+      "name": "Export Messages",
+      "description": "Export Discord messages and channel history to HTML, JSON, or Text.",
+      "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
+      "icon": "ShareIcon",
+      "channels": {
+        "latest": "1.0.0"
+      },
+      "versions": {
+        "1.0.0": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.export-messages@1.0.0.zip",
+          "sha256": "3d593b53181b5639abb8e4869ecd810ae1b148428d73f1b4310a56c6d1132835",
+          "size": 14719,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "hieuxyz.lib": {
+              "version": ">=1.0.2 <2",
+              "optional": true
+            }
+          }
+        }
+      }
+    },
     "hieuxyz.lib": {
       "name": "Hieuxyz Lib",
-      "description": "A shared library for my plugins.",
+      "description": "Shared utility library and native SAF helpers for hieuxyz plugins.",
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "WrenchIcon",
       "channels": {
-        "latest": "1.0.1"
+        "latest": "1.0.2"
       },
       "versions": {
         "1.0.0": {
@@ -29,6 +57,19 @@
           "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.lib@1.0.1.zip",
           "sha256": "7af10cbad71a224548d338ce0cbaa6ef43cf0b797fae191337ddf0ec9d5e5227",
           "size": 8071,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            }
+          }
+        },
+        "1.0.2": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.lib@1.0.2.zip",
+          "sha256": "fa8823b3e65cc80ea9a846846a7671f8b63ab2f750b5697255272e5b5a5bd496",
+          "size": 14665,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
