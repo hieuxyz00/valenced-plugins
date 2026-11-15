@@ -16,6 +16,7 @@ import {
 	rgbToHsl,
 	rgbToHsv,
 } from './math/color'
+import * as saf from './saf'
 
 export {
 	ColorPicker,
@@ -33,6 +34,7 @@ export {
 	rgbToHex,
 	rgbToHsl,
 	rgbToHsv,
+	saf,
 }
 
 export const hieuxyzApi = {
@@ -43,6 +45,7 @@ export const hieuxyzApi = {
 	EmojiPicker,
 	LanguagePickerModal,
 	DEFAULT_DISCORD_ICONS,
+	saf,
 	color: {
 		hsvToRgb,
 		rgbToHsv,
