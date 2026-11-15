@@ -1,6 +1,9 @@
 import { ToastActionCreators } from '@valenced/discord/actions'
 import { Stores } from '@valenced/discord/flux'
 import { Clipboard } from '@valenced/externals/react-native-clipboard'
+import { lookupModule } from '@valenced/modules/finders'
+import { withProps } from '@valenced/modules/finders/filters'
+import { getConstants, writeFile } from '@valenced/modules/native/fs'
 import { ReactNative } from '@valenced/react'
 import { Platform } from 'react-native'
 import { formatMessage, formatMessages } from './formatter'
@@ -40,16 +43,14 @@ export function showToast(
 
 export function isSafSupported(): boolean {
 	try {
-		const valObj = (
-			globalThis as unknown as {
-				valenced?: {
-					hieuxyz?: { saf?: { isSafAvailable?: () => boolean } }
-				}
+		const hApi = (
+			valenced as unknown as {
+				hieuxyz?: { saf?: { isSafAvailable?: () => boolean } }
 			}
-		).valenced
+		)?.hieuxyz
 		return (
-			typeof valObj?.hieuxyz?.saf?.isSafAvailable === 'function' &&
-			valObj.hieuxyz.saf.isSafAvailable()
+			typeof hApi?.saf?.isSafAvailable === 'function' &&
+			hApi.saf.isSafAvailable()
 		)
 	} catch {
 		return false
@@ -76,26 +77,20 @@ export async function exportContent(
 	if (destination === 'saf' && isSafSupported()) {
 		try {
 			const mimeType = getMimeType(fileName)
-			const valObj = (
-				globalThis as unknown as {
-					valenced?: {
-						hieuxyz?: {
-							saf?: {
-								saveViaSaf?: (
-									name: string,
-									mime: string,
-									data: string,
-								) => Promise<boolean>
-							}
+			const hApi = (
+				valenced as unknown as {
+					hieuxyz?: {
+						saf?: {
+							saveViaSaf?: (
+								name: string,
+								mime: string,
+								data: string,
+							) => Promise<boolean>
 						}
 					}
 				}
-			).valenced
-			const ok = await valObj?.hieuxyz?.saf?.saveViaSaf?.(
-				fileName,
-				mimeType,
-				content,
-			)
+			)?.hieuxyz
+			const ok = await hApi?.saf?.saveViaSaf?.(fileName, mimeType, content)
 			if (ok) {
 				showToast('Save file dialog opened.', 'success')
 				return
@@ -105,36 +100,10 @@ export async function exportContent(
 
 	if (Platform.OS === 'ios') {
 		try {
-			const nativeMod = (
-				globalThis as unknown as {
-					valenced?: {
-						modules?: {
-							native?: {
-								callNativeMethodSync?: (
-									method: string,
-									args: unknown[],
-								) => unknown
-								callNativeMethod?: (
-									method: string,
-									args: unknown[],
-								) => Promise<unknown>
-							}
-						}
-					}
-				}
-			).valenced?.modules?.native
-
-			const fsConstants = nativeMod?.callNativeMethodSync?.(
-				'valenced.fs.getConstants',
-				[],
-			) as { cache?: string } | undefined
-
-			if (fsConstants?.cache && nativeMod?.callNativeMethod) {
-				const filePath = `${fsConstants.cache}/${fileName}`
-				await nativeMod.callNativeMethod('valenced.fs.write', [
-					filePath,
-					content,
-				])
+			const constants = getConstants()
+			if (constants?.cache) {
+				const filePath = `${constants.cache}/${fileName}`
+				await writeFile(filePath, content)
 				if (ReactNative?.Share?.share) {
 					await ReactNative.Share.share({
 						url: `file://${filePath}`,
@@ -237,13 +206,6 @@ interface SelectedChannelStoreInstance {
 	getChannelId?: () => string | undefined
 }
 
-interface FinderFilterHelper {
-	filters: {
-		withProps: (...props: string[]) => unknown
-	}
-	lookupModule: (filter: unknown) => unknown[]
-}
-
 interface MessageActionsModule {
 	fetchMessages?: (opts: {
 		channelId: string
@@ -269,15 +231,9 @@ export async function ensureMessagesLoaded(
 		return list
 	}
 
-	const valModules = (
-		globalThis as unknown as {
-			valenced?: { modules?: { finders?: FinderFilterHelper } }
-		}
-	).valenced?.modules
-	const finders = valModules?.finders
-	const msgActions = finders?.lookupModule?.(
-		finders.filters.withProps('sendMessage'),
-	)?.[0] as MessageActionsModule | undefined
+	const [msgActions] = lookupModule(
+		withProps('sendMessage', 'fetchMessages'),
+	) as [MessageActionsModule | undefined, unknown]
 
 	if (!msgActions?.fetchMessages) {
 		return list
