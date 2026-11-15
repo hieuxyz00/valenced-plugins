@@ -1,6 +1,6 @@
 # hieuxyz's Valenced Plugins
 
-A collection of plugins for the [Valenced](https://github.com/Valenced/valenced) Discord Android client.
+A collection of plugins for the [Valenced](https://github.com/Valenced/valenced) Discord client.
 
 ## Repository URL
 
@@ -16,10 +16,11 @@ https://hieuxyz00.github.io/valenced-plugins/index.json
 
 | Plugin | ID | Description |
 |---|---|---|
-| **Hieuxyz Lib** | `hieuxyz.lib` | Shared component library featuring PiP modal, HTML & gradient color picker, emoji & Discord vector icon picker, and HSV/RGB color utilities. |
-| **No Reply Mention** | `hieuxyz.no-reply-mention` | Automatically disable mention when replying to messages, with long-press quick toggle on the reply bar mention button. |
-| **Staff Tags** | `hieuxyz.staff-tags` | Custom staff tags, badges, and server roles rendered in Discord chat via Xposed, with support for custom text, Discord vector icons, gradients, and role colors. |
-| **Translator** | `hieuxyz.translator` | In-app chat translation for incoming and outgoing messages with multi-provider fallback (Google, Microsoft, MyMemory), support for embeds & components v2, and quick settings via long-press on the chat bar button. |
+| **Export Messages** | `hieuxyz.export-messages` | Export Discord messages and channel history to HTML, JSON, or text. |
+| **Hieuxyz Lib** | `hieuxyz.lib` | Shared component library and utilities for hieuxyz plugins. |
+| **No Reply Mention** | `hieuxyz.no-reply-mention` | Automatically disable mention when replying to messages. |
+| **Staff Tags** | `hieuxyz.staff-tags` | Custom staff tags, badges, and server roles for Discord members. |
+| **Translator** | `hieuxyz.translator` | In-app chat translation for incoming and outgoing messages. |
 
 ---
 
