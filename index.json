@@ -54,7 +54,7 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "WrenchIcon",
       "channels": {
-        "latest": "1.0.2"
+        "latest": "1.0.3"
       },
       "versions": {
         "1.0.0": {
@@ -87,6 +87,19 @@
           "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.lib@1.0.2.zip",
           "sha256": "fa8823b3e65cc80ea9a846846a7671f8b63ab2f750b5697255272e5b5a5bd496",
           "size": 14665,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            }
+          }
+        },
+        "1.0.3": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.lib@1.0.3.zip",
+          "sha256": "179c8596e2182c850c8469956743a67a9c8f2aefda5466e917c5bcf2580ad367",
+          "size": 14664,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
