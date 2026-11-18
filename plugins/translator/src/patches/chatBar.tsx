@@ -82,7 +82,6 @@ export function SlashedTranslateSvg({
 
 let globalHieuxyzApi: import('../../../lib/src').HieuxyzApi | undefined
 
-/** Set the runtime reference to hieuxyz.lib API. */
 export function setChatBarHieuxyzApi(
 	api?: import('../../../lib/src').HieuxyzApi,
 ): void {
@@ -116,10 +115,6 @@ export interface SendSettingsModalProps {
 	hieuxyz?: import('../../../lib/src').HieuxyzApi
 }
 
-/**
- * Send Settings Modal opened on long-pressing the chat input translator button.
- * Uses PipModal and LanguagePickerModal from hieuxyz.lib.
- */
 export function SendSettingsModal({
 	visible,
 	onClose,
@@ -342,7 +337,6 @@ export function SendSettingsModal({
 export const QuickSettingsModal = SendSettingsModal
 export type QuickSettingsModalProps = SendSettingsModalProps
 
-/** Component rendered inside Discord chat input action bar. */
 export function TranslatorChatBarButton({
 	storage,
 	showToast,
@@ -357,7 +351,16 @@ export function TranslatorChatBarButton({
 	const [modalVisible, setModalVisible] = useState(false)
 	const isEnabled = settings.autoTranslateSend
 
-	const handlePress = () => {
+	const handlePress = (event?: unknown) => {
+		if (
+			event &&
+			typeof event === 'object' &&
+			'stopPropagation' in event &&
+			typeof (event as { stopPropagation?: unknown }).stopPropagation ===
+				'function'
+		) {
+			;(event as { stopPropagation: () => void }).stopPropagation()
+		}
 		const next = !settings.autoTranslateSend
 		void storage.set({ autoTranslateSend: next })
 		const text = `Auto-Translate Send: ${next ? 'Enabled' : 'Disabled'}`
@@ -368,7 +371,16 @@ export function TranslatorChatBarButton({
 		}
 	}
 
-	const handleLongPress = () => {
+	const handleLongPress = (event?: unknown) => {
+		if (
+			event &&
+			typeof event === 'object' &&
+			'stopPropagation' in event &&
+			typeof (event as { stopPropagation?: unknown }).stopPropagation ===
+				'function'
+		) {
+			;(event as { stopPropagation: () => void }).stopPropagation()
+		}
 		setModalVisible(true)
 	}
 
@@ -383,11 +395,11 @@ export function TranslatorChatBarButton({
 	return (
 		<>
 			<Pressable
+				testID="valenced-translator-chat-button"
 				accessibilityLabel="Translator"
 				accessibilityRole="button"
 				accessibilityState={{
 					selected: isEnabled,
-					checked: isEnabled,
 				}}
 				onPress={handlePress}
 				onLongPress={handleLongPress}
@@ -429,7 +441,6 @@ export function TranslatorChatBarButton({
 	)
 }
 
-/** Patch ChatInputActions (left) and ChatInputRightActions (right) in Discord. */
 export function patchChatBar(
 	cleanup: (cb: () => void) => void,
 	storage: JsonStorage<Settings>,

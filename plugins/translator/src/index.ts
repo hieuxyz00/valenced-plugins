@@ -262,9 +262,7 @@ function refreshMessages(): void {
 	queueMicrotask(() => {
 		try {
 			messageStore?.emitChange?.()
-		} catch {
-			// ignore
-		}
+		} catch {}
 	})
 }
 
@@ -296,9 +294,7 @@ export function showToast(text: string): void {
 		try {
 			ToastActionCreators.open(TOAST_KEY, { text })
 			return
-		} catch {
-			// Fall through to alert fallback
-		}
+		} catch {}
 	}
 
 	if (
@@ -319,9 +315,7 @@ export function showToast(text: string): void {
 				}),
 			)
 			return
-		} catch {
-			// Silently finish
-		}
+		} catch {}
 	}
 }
 
@@ -436,9 +430,7 @@ export async function translateMessage(
 					),
 				)
 			}
-		} catch {
-			// ignore
-		}
+		} catch {}
 
 		refreshMessages()
 		dispatchRerenderOnly(channelId, message.id)
@@ -475,9 +467,7 @@ export function restoreOriginalMessage(messageId: string): void {
 				),
 			)
 		}
-	} catch {
-		// ignore
-	}
+	} catch {}
 
 	refreshMessages()
 	dispatchRerenderOnly(channelId, messageId)
@@ -506,6 +496,26 @@ export default plugin<{ jsonStorage: Settings }>({
 			messageStore = store
 			cleanup(
 				instead(store, 'getMessage', function (args, original) {
+					if (
+						localTranslations.size === 0 &&
+						localTranslatedObjects.size === 0
+					) {
+						return Reflect.apply(original, this, args)
+					}
+					const messageId =
+						typeof args[1] === 'string'
+							? args[1]
+							: typeof args[0] === 'string'
+								? args[0]
+								: undefined
+					if (
+						messageId &&
+						!localTranslations.has(messageId) &&
+						!localTranslatedObjects.has(messageId)
+					) {
+						return Reflect.apply(original, this, args)
+					}
+
 					const result = Reflect.apply(original, this, args) as
 						| DiscordMessage
 						| null
@@ -559,9 +569,7 @@ export default plugin<{ jsonStorage: Settings }>({
 							),
 						)
 					}
-				} catch {
-					// ignore
-				}
+				} catch {}
 				dispatchRerenderOnly(state.channelId, messageId)
 			}
 			originalMessages.clear()
@@ -713,8 +721,6 @@ export default plugin<{ jsonStorage: Settings }>({
 
 						const insertIndex = Math.min(1, rows.length)
 
-						// When already translated: show ONLY Restore Original row
-						// When not translated: show ONLY Translate row
 						if (isTranslated) {
 							const restoreRow = createRow(
 								RESTORE_ROW_KEY,
