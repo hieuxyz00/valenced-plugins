@@ -18,6 +18,7 @@ import type {
 } from 'react-native'
 
 const { Button, Text } = Design
+const AnimatedView = Animated.View
 
 export interface PipModalProps {
 	visible: boolean
@@ -37,16 +38,6 @@ export interface PipModalProps {
 	scrollEnabled?: boolean
 }
 
-/**
- * Native Discord Bottom Sheet Modal.
- * Renders as a true bottom sheet sliding up from the bottom of the screen.
- * Features:
- * - Downward swipe-to-dismiss gesture ONLY on the top drag handle pill
- * - Backdrop tap-to-dismiss
- * - Supports scrollEnabled lock so inner sliders/canvases never accidentally drag the modal
- * - Pinned fixed header for search/tabs
- * - Smooth scrolling with proper layout dimensions
- */
 export function PipModal({
 	visible,
 	onClose,
@@ -163,8 +154,7 @@ export function PipModal({
 					alignItems: 'center',
 				}}
 			>
-				{/* Backdrop tap to dismiss */}
-				<Animated.View
+				<AnimatedView
 					style={{
 						position: 'absolute',
 						top: 0,
@@ -180,10 +170,9 @@ export function PipModal({
 					}}
 				>
 					<Pressable onPress={handleClose} style={{ flex: 1 }} />
-				</Animated.View>
+				</AnimatedView>
 
-				{/* Native Discord Bottom Sheet Panel */}
-				<Animated.View
+				<AnimatedView
 					style={{
 						width: '100%',
 						maxWidth,
@@ -201,7 +190,6 @@ export function PipModal({
 						transform: [{ translateY: panY }],
 					}}
 				>
-					{/* Top Drag Handle Indicator: panHandlers ONLY on this pill area */}
 					<View
 						{...panResponder.panHandlers}
 						collapsable={false}
@@ -223,7 +211,6 @@ export function PipModal({
 						/>
 					</View>
 
-					{/* Bottom Sheet Header */}
 					<View
 						style={{
 							flexDirection: 'row',
@@ -269,7 +256,6 @@ export function PipModal({
 						/>
 					</View>
 
-					{/* Pinned Fixed Header (e.g. SearchInput) */}
 					{fixedHeader ? (
 						<View
 							style={{
@@ -283,7 +269,6 @@ export function PipModal({
 						</View>
 					) : null}
 
-					{/* Sheet Content: ScrollView or unconstrained View */}
 					{scrollable ? (
 						<ScrollView
 							style={{ flex: 1 }}
@@ -305,7 +290,6 @@ export function PipModal({
 						<View style={{ flex: 1, padding: 12 }}>{children}</View>
 					)}
 
-					{/* Optional Sheet Footer Actions */}
 					{actions ? (
 						<View
 							style={{
@@ -319,7 +303,7 @@ export function PipModal({
 							{actions}
 						</View>
 					) : null}
-				</Animated.View>
+				</AnimatedView>
 			</View>
 		</Modal>
 	)
