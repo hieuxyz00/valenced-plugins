@@ -4,7 +4,7 @@
 	"name": "Export Messages",
 	"description": "Export Discord messages and channel history to HTML, JSON, or Text.",
 	"author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"icon": "ShareIcon",
 	"dependencies": {
 		"valenced.api": {

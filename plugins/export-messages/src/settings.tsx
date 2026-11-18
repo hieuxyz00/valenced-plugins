@@ -142,6 +142,14 @@ export default function SettingsComponent({ api }: SettingsProps) {
 								void storage.set({ includeEmbeds: val })
 							}}
 						/>
+						<TableSwitchRow
+							label="Include Components"
+							subLabel="Render interactive buttons, select menus, containers, and v2 components."
+							value={currentSettings.includeComponents ?? true}
+							onValueChange={(val: boolean) => {
+								void storage.set({ includeComponents: val })
+							}}
+						/>
 					</TableRowGroup>
 				</View>
 			</ScrollView>
