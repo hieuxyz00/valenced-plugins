@@ -57,8 +57,6 @@ export function resolveTagStyle(
 	const effectiveCustomColor =
 		customColor && customColor.length > 0 ? customColor : undefined
 
-	// Custom color has higher precedence than role color.
-	// Only if no custom color is specified for this tag does it fall back to role color (if enabled).
 	const backgroundColor =
 		effectiveCustomColor ??
 		(useRoleColor ? roleColor : undefined) ??
@@ -94,25 +92,17 @@ export function resolveTagStyle(
 	}
 }
 
-/**
- * Checks if the given string is a Discord built-in icon asset name (e.g., "CrownIcon", "ShieldUserIcon").
- * Only matches names containing "Icon" — NEVER matches unicode emojis or arbitrary text.
- */
 export function isDiscordIconName(icon: string): boolean {
 	const trimmed = icon.trim()
 	if (trimmed.length === 0) return false
-	// Only consider it a Discord icon if it explicitly contains "Icon"
 	return trimmed.includes('Icon')
 }
 
-/** Formats native chat tag text. Built-in icons are NEVER mapped to unicode to preserve exact appearance. */
 export function formatChatTagText(text: string, icon?: string): string {
 	if (!icon?.trim()) return text
 	const trimmed = icon.trim()
-	// Never map built-in Discord icons into Unicode emojis
 	if (isDiscordIconName(trimmed)) {
 		return text
 	}
-	// Only prepend actual Unicode emojis picked or entered by user
 	return `${trimmed} ${text}`
 }

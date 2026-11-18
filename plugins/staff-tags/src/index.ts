@@ -1,5 +1,5 @@
 import { initTagModule } from './lib/tagComponent'
-import { initPermissionsModule } from './lib/tags'
+import { clearTagCache, initPermissionsModule } from './lib/tags'
 import { patchChat } from './patches/chat'
 import { patchDetails } from './patches/details'
 import { patchName } from './patches/name'
@@ -17,6 +17,7 @@ export default plugin<{ jsonStorage: Settings }>({
 	},
 	start({ cleanup, jsonStorage }) {
 		cleanup(
+			clearTagCache,
 			initPermissionsModule(),
 			initTagModule(),
 			patchChat(jsonStorage),

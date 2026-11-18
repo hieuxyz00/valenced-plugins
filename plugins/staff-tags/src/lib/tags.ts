@@ -14,19 +14,18 @@ import type {
 	TagResult,
 } from '../types'
 
-// Permission bit constants
-export const KICK_MEMBERS = 1n << 1n // 2n
-export const BAN_MEMBERS = 1n << 2n // 4n
-export const ADMINISTRATOR = 1n << 3n // 8n
-export const MANAGE_CHANNELS = 1n << 4n // 16n
-export const MANAGE_GUILD = 1n << 5n // 32n
-export const MANAGE_MESSAGES = 1n << 13n // 8192n
-export const MUTE_MEMBERS = 1n << 22n // 4194304n
-export const DEAFEN_MEMBERS = 1n << 23n // 8388608n
-export const MOVE_MEMBERS = 1n << 24n // 16777216n
-export const MANAGE_ROLES = 1n << 28n // 268435456n
-export const MANAGE_WEBHOOKS = 1n << 29n // 536870912n
-export const MODERATE_MEMBERS = 1n << 40n // 1099511627776n
+export const KICK_MEMBERS = 1n << 1n
+export const BAN_MEMBERS = 1n << 2n
+export const ADMINISTRATOR = 1n << 3n
+export const MANAGE_CHANNELS = 1n << 4n
+export const MANAGE_GUILD = 1n << 5n
+export const MANAGE_MESSAGES = 1n << 13n
+export const MUTE_MEMBERS = 1n << 22n
+export const DEAFEN_MEMBERS = 1n << 23n
+export const MOVE_MEMBERS = 1n << 24n
+export const MANAGE_ROLES = 1n << 28n
+export const MANAGE_WEBHOOKS = 1n << 29n
+export const MODERATE_MEMBERS = 1n << 40n
 
 export interface ComputePermissionsArgs {
 	user: DiscordUser
@@ -40,6 +39,41 @@ export interface PermissionsModule {
 }
 
 let permissionsModule: PermissionsModule | undefined
+
+interface CacheEntry<T> {
+	value: T
+	expiresAt: number
+}
+
+const tagCache = new Map<string, CacheEntry<TagResult | undefined>>()
+const roleColorCache = new Map<string, CacheEntry<string | undefined>>()
+
+let lastCustomTagsRef: CustomTagsConfig | undefined
+let customTagsKey = ''
+
+function getCustomTagsKey(customTags?: CustomTagsConfig): string {
+	if (!customTags) return ''
+	if (customTags === lastCustomTagsRef) return customTagsKey
+	lastCustomTagsRef = customTags
+	customTagsKey = JSON.stringify(customTags)
+	return customTagsKey
+}
+
+function pruneCache<T>(cache: Map<string, CacheEntry<T>>): void {
+	const now = Date.now()
+	for (const [k, v] of cache) {
+		if (v.expiresAt <= now || cache.size > 300) {
+			cache.delete(k)
+		}
+	}
+}
+
+export function clearTagCache(): void {
+	tagCache.clear()
+	roleColorCache.clear()
+	lastCustomTagsRef = undefined
+	customTagsKey = ''
+}
 
 export function initPermissionsModule(): () => void {
 	return getModules(
@@ -136,15 +170,18 @@ export const tags: Tag[] = [
 	},
 ]
 
-/**
- * Extracts a member's top role color, preserving full Discord gradients (linear-gradient)
- * when enhanced role styles / multi-color roles are present.
- */
 export function extractMemberRoleColor(
 	guildId: string | undefined,
 	userId: string | undefined,
 ): string | undefined {
 	if (!guildId || !userId) return undefined
+
+	const key = `${guildId}:${userId}`
+	const now = Date.now()
+	const cached = roleColorCache.get(key)
+	if (cached && cached.expiresAt > now) {
+		return cached.value
+	}
 
 	const GuildMemberStore = Stores.GuildMemberStore as
 		| DiscordModules.Flux.Store<{
@@ -156,19 +193,21 @@ export function extractMemberRoleColor(
 		| undefined
 
 	const member = GuildMemberStore?.getMember(guildId, userId)
-	if (!member) return undefined
+	if (!member) {
+		if (roleColorCache.size > 500) pruneCache(roleColorCache)
+		roleColorCache.set(key, { value: undefined, expiresAt: now + 5000 })
+		return undefined
+	}
 
-	// 1. Check member.colorStrings for gradient role colors
+	let result: string | undefined
 	const colorStrings = member.colorStrings
 	if (colorStrings?.primaryColor && colorStrings?.secondaryColor) {
 		if (colorStrings.tertiaryColor) {
-			return `linear-gradient(90deg, ${colorStrings.primaryColor}, ${colorStrings.secondaryColor}, ${colorStrings.tertiaryColor})`
+			result = `linear-gradient(90deg, ${colorStrings.primaryColor}, ${colorStrings.secondaryColor}, ${colorStrings.tertiaryColor})`
+		} else {
+			result = `linear-gradient(90deg, ${colorStrings.primaryColor}, ${colorStrings.secondaryColor})`
 		}
-		return `linear-gradient(90deg, ${colorStrings.primaryColor}, ${colorStrings.secondaryColor})`
-	}
-
-	// 2. Check GuildRoleStore by colorRoleId if member.colorStrings was not directly set
-	if (member.colorRoleId) {
+	} else if (member.colorRoleId) {
 		const GuildRoleStore = Stores.GuildRoleStore as
 			| DiscordModules.Flux.Store<{
 					getRole(
@@ -185,21 +224,22 @@ export function extractMemberRoleColor(
 		const role = GuildRoleStore?.getRole(guildId, member.colorRoleId)
 		if (role?.colorStrings?.primaryColor && role.colorStrings.secondaryColor) {
 			if (role.colorStrings.tertiaryColor) {
-				return `linear-gradient(90deg, ${role.colorStrings.primaryColor}, ${role.colorStrings.secondaryColor}, ${role.colorStrings.tertiaryColor})`
+				result = `linear-gradient(90deg, ${role.colorStrings.primaryColor}, ${role.colorStrings.secondaryColor}, ${role.colorStrings.tertiaryColor})`
+			} else {
+				result = `linear-gradient(90deg, ${role.colorStrings.primaryColor}, ${role.colorStrings.secondaryColor})`
 			}
-			return `linear-gradient(90deg, ${role.colorStrings.primaryColor}, ${role.colorStrings.secondaryColor})`
-		}
-		if (role?.colorString) {
-			return role.colorString
+		} else if (role?.colorString) {
+			result = role.colorString
 		}
 	}
 
-	// 3. Fallback to solid colorString
-	if (member.colorString) {
-		return member.colorString
+	if (!result && member.colorString) {
+		result = member.colorString
 	}
 
-	return undefined
+	if (roleColorCache.size > 500) pruneCache(roleColorCache)
+	roleColorCache.set(key, { value: result, expiresAt: now + 5000 })
+	return result
 }
 
 export function getTag(
@@ -211,6 +251,13 @@ export function getTag(
 ): TagResult | undefined {
 	if (!user) return undefined
 
+	const now = Date.now()
+	const key = `${user.id}:${guild?.id ?? ''}:${channel?.id ?? ''}:${useRoleColor ? 1 : 0}:${getCustomTagsKey(customTags)}`
+	const cached = tagCache.get(key)
+	if (cached && cached.expiresAt > now) {
+		return cached.value
+	}
+
 	let userPermissions = 0n
 	if (guild) {
 		userPermissions = computeUserPermissions(
@@ -220,6 +267,7 @@ export function getTag(
 		)
 	}
 
+	let result: TagResult | undefined
 	for (const tag of tags) {
 		const matchesCondition = tag.condition?.(guild, channel, user)
 		const matchesPermissions =
@@ -242,12 +290,15 @@ export function getTag(
 					? tag.verified(guild, channel, user)
 					: (tag.verified ?? false)
 
-			return {
+			result = {
 				...style,
 				verified,
 			}
+			break
 		}
 	}
 
-	return undefined
+	if (tagCache.size > 500) pruneCache(tagCache)
+	tagCache.set(key, { value: result, expiresAt: now + 5000 })
+	return result
 }
