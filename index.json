@@ -9,7 +9,7 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "ShareIcon",
       "channels": {
-        "latest": "1.0.1"
+        "latest": "1.0.2"
       },
       "versions": {
         "1.0.0": {
@@ -33,6 +33,23 @@
           "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.export-messages@1.0.1.zip",
           "sha256": "a3c499f6cf520518988765e13575fda37892f7c28c07d072b89e0a6cd57ab194",
           "size": 14688,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "hieuxyz.lib": {
+              "version": ">=1.0.2 <2",
+              "optional": true
+            }
+          }
+        },
+        "1.0.2": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.export-messages@1.0.2.zip",
+          "sha256": "59769b143372265288c41e6795e98f3a0558d2bb5612570302a47e7b81b541a6",
+          "size": 27001,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
@@ -117,7 +134,7 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "ChatArrowRightIcon",
       "channels": {
-        "latest": "1.0.1"
+        "latest": "1.0.2"
       },
       "versions": {
         "1.0.0": {
@@ -145,6 +162,19 @@
               "version": "*"
             }
           }
+        },
+        "1.0.2": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.no-reply-mention@1.0.2.zip",
+          "sha256": "ce8bcae266592825645cc4a3039a72f8b90df5e13815d300eb87994411d63786",
+          "size": 2216,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            }
+          }
         }
       }
     },
@@ -154,7 +184,7 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "ShieldUserIcon",
       "channels": {
-        "latest": "1.0.2"
+        "latest": "1.0.3"
       },
       "versions": {
         "1.0.0": {
@@ -204,6 +234,22 @@
               "version": ">=1 <2"
             }
           }
+        },
+        "1.0.3": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.staff-tags@1.0.3.zip",
+          "sha256": "cf2932d69e9588150f7e0798fea10cb706239733553ec77c4b111d5df6c78144",
+          "size": 28496,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "hieuxyz.lib": {
+              "version": ">=1 <2"
+            }
+          }
         }
       }
     },
@@ -213,7 +259,7 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "TranslateIcon",
       "channels": {
-        "latest": "1.0.1"
+        "latest": "1.0.2"
       },
       "versions": {
         "1.0.0": {
@@ -236,6 +282,22 @@
           "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.translator@1.0.1.zip",
           "sha256": "ec90035eddf96cc55b6d747aa433e0bb38d7ea4352179d8c82208d83e0fbb81d",
           "size": 10301,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "hieuxyz.lib": {
+              "version": ">=1 <2"
+            }
+          }
+        },
+        "1.0.2": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.translator@1.0.2.zip",
+          "sha256": "7eefd58ff32645bd09a0f331ed066b140ae6ad7ee2825ac85c6eab289166cab9",
+          "size": 10410,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
