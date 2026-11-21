@@ -21,6 +21,7 @@ https://hieuxyz00.github.io/valenced-plugins/index.json
 | **No Reply Mention** | `hieuxyz.no-reply-mention` | Automatically disable mention when replying to messages. |
 | **Staff Tags** | `hieuxyz.staff-tags` | Custom staff tags, badges, and server roles for Discord members. |
 | **Translator** | `hieuxyz.translator` | In-app chat translation for incoming and outgoing messages. |
+| **Voice Utils** | `hieuxyz.voice-utils` | Set voice channel statuses and perform bulk voice moderation (disconnect, move, mute, deafen). |
 
 ---
 
