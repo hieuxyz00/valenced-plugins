@@ -15,6 +15,10 @@
 		},
 		"hieuxyz.lib": {
 			"version": ">=1.0.4 <2"
+		},
+		"rosie.toast-api": {
+			"version": ">=1.1.1 <2",
+			"optional": true
 		}
 	},
 	"dist": {
