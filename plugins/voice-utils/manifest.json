@@ -4,7 +4,7 @@
 	"name": "Voice Utils",
 	"description": "Set voice channel statuses and perform bulk voice moderation (disconnect, move, mute, deafen).",
 	"author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"icon": "VoiceNormalIcon",
 	"dependencies": {
 		"valenced.api": {
