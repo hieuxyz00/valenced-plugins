@@ -1,7 +1,15 @@
 import { ToastActionCreators } from '@valenced/discord/actions'
 
 interface ValencedToastsApi {
-	show?: (opts: { title?: string; message: string }) => void
+	show?: (
+		opts:
+			| string
+			| {
+					content: string
+					subtitle?: string
+					variant?: 'default' | 'success' | 'critical' | 'warning' | 'info'
+			  },
+	) => void
 }
 
 declare const valenced: unknown
@@ -16,8 +24,8 @@ export function showToast(content: string, key?: string): void {
 		const valencedObj = valenced as { toasts?: ValencedToastsApi }
 		if (typeof valencedObj?.toasts?.show === 'function') {
 			valencedObj.toasts.show({
-				title: 'Voice Utils',
-				message: content,
+				content,
+				subtitle: 'Voice Utils',
 			})
 			return
 		}
