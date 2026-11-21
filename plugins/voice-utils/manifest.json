@@ -1,0 +1,23 @@
+{
+	"format": 1,
+	"id": "hieuxyz.voice-utils",
+	"name": "Voice Utils",
+	"description": "Set voice channel statuses and perform bulk voice moderation (disconnect, move, mute, deafen).",
+	"author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
+	"version": "1.0.0",
+	"icon": "VoiceNormalIcon",
+	"dependencies": {
+		"valenced.api": {
+			"version": ">=1 <2"
+		},
+		"discord": {
+			"version": "*"
+		},
+		"hieuxyz.lib": {
+			"version": ">=1.0.4 <2"
+		}
+	},
+	"dist": {
+		"script": "index.js"
+	}
+}
