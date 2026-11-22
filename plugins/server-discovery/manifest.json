@@ -1,0 +1,20 @@
+{
+	"format": 1,
+	"id": "hieuxyz.server-discovery",
+	"name": "Server Discovery",
+	"description": "Browse, search, preview, and join discoverable Discord servers directly on mobile.",
+	"author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
+	"version": "1.0.0",
+	"icon": "CompassIcon",
+	"dependencies": {
+		"valenced.api": { "version": ">=1 <2" },
+		"discord": { "version": "*" },
+		"rosie.toast-api": {
+			"version": ">=1.1.1 <2",
+			"optional": true
+		}
+	},
+	"dist": {
+		"script": "index.js"
+	}
+}
