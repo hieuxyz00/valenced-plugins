@@ -1,0 +1,24 @@
+{
+	"format": 1,
+	"id": "hieuxyz.pinned-mentions",
+	"name": "Pinned Mentions",
+	"description": "Pin frequently pinged users to the top of mention autocomplete suggestions per server or globally.",
+	"author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
+	"version": "1.0.0",
+	"icon": "PinIcon",
+	"dependencies": {
+		"valenced.api": {
+			"version": ">=1 <2"
+		},
+		"discord": {
+			"version": "*"
+		},
+		"rosie.toast-api": {
+			"version": ">=1.1.1 <2",
+			"optional": true
+		}
+	},
+	"dist": {
+		"script": "index.js"
+	}
+}
