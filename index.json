@@ -191,6 +191,34 @@
         }
       }
     },
+    "hieuxyz.pinned-mentions": {
+      "name": "Pinned Mentions",
+      "description": "Pin frequently pinged users to the top of mention autocomplete suggestions per server or globally.",
+      "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
+      "icon": "PinIcon",
+      "channels": {
+        "latest": "1.0.0"
+      },
+      "versions": {
+        "1.0.0": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.pinned-mentions@1.0.0.zip",
+          "sha256": "6c43ee1124c3957ea2a6fd2a99caf742210f20d2d576de24c9b28ced10aba983",
+          "size": 8067,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "rosie.toast-api": {
+              "version": ">=1.1.1 <2",
+              "optional": true
+            }
+          }
+        }
+      }
+    },
     "hieuxyz.staff-tags": {
       "name": "Staff Tags",
       "description": "Custom staff tags for Discord members.",
