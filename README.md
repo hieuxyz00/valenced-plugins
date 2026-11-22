@@ -19,6 +19,7 @@ https://hieuxyz00.github.io/valenced-plugins/index.json
 | **Export Messages** | `hieuxyz.export-messages` | Export Discord messages and channel history to HTML, JSON, or text. |
 | **Hieuxyz Lib** | `hieuxyz.lib` | Shared component library and utilities for hieuxyz plugins. |
 | **No Reply Mention** | `hieuxyz.no-reply-mention` | Automatically disable mention when replying to messages. |
+| **Pinned Mentions** | `hieuxyz.pinned-mentions` | Pin frequently mentioned users to the top of autocomplete suggestions with per-server and global support. |
 | **Staff Tags** | `hieuxyz.staff-tags` | Custom staff tags, badges, and server roles for Discord members. |
 | **Translator** | `hieuxyz.translator` | In-app chat translation for incoming and outgoing messages. |
 | **Voice Utils** | `hieuxyz.voice-utils` | Set voice channel statuses and perform bulk voice moderation (disconnect, move, mute, deafen). |
