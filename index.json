@@ -219,6 +219,34 @@
         }
       }
     },
+    "hieuxyz.server-discovery": {
+      "name": "Server Discovery",
+      "description": "Browse, search, preview, and join discoverable Discord servers directly on mobile.",
+      "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
+      "icon": "CompassIcon",
+      "channels": {
+        "latest": "1.0.0"
+      },
+      "versions": {
+        "1.0.0": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.server-discovery@1.0.0.zip",
+          "sha256": "4485fe822e978975e10a99ae5012245420f3e8084bb92df606ebaefb51441dda",
+          "size": 9994,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "rosie.toast-api": {
+              "version": ">=1.1.1 <2",
+              "optional": true
+            }
+          }
+        }
+      }
+    },
     "hieuxyz.staff-tags": {
       "name": "Staff Tags",
       "description": "Custom staff tags for Discord members.",
