@@ -225,13 +225,30 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "CompassIcon",
       "channels": {
-        "latest": "1.0.0"
+        "latest": "1.0.1"
       },
       "versions": {
         "1.0.0": {
           "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.server-discovery@1.0.0.zip",
           "sha256": "4485fe822e978975e10a99ae5012245420f3e8084bb92df606ebaefb51441dda",
           "size": 9994,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "rosie.toast-api": {
+              "version": ">=1.1.1 <2",
+              "optional": true
+            }
+          }
+        },
+        "1.0.1": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.server-discovery@1.0.1.zip",
+          "sha256": "ab7185be13ea237623e15a96b13476a81ab9aaab6181865a1ebaf93d12a1215a",
+          "size": 10571,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
