@@ -22,6 +22,7 @@ import {
 } from '../api/discoveryApi'
 import { MODAL_KEY_DISCOVERY, MODAL_KEY_PREVIEW } from '../constants'
 import { DefaultSettings } from '../types'
+import { useThemeTokens } from '../utils/theme'
 import { showToast } from '../utils/toast'
 import { CategoryBar } from './CategoryBar'
 import { ServerCard } from './ServerCard'
@@ -72,6 +73,7 @@ export function ServerDiscoveryView({
 	settings = DefaultSettings,
 }: ServerDiscoveryViewProps) {
 	const { Button, Text } = Design
+	const tokens = useThemeTokens()
 
 	const [searchQuery, setSearchQuery] = useState('')
 	const [selectedCategoryId, setSelectedCategoryId] = useState(
@@ -292,11 +294,11 @@ export function ServerDiscoveryView({
 		if (loading) {
 			return (
 				<View style={styles.loadingContainer}>
-					<ActivityIndicator size="large" color="#5865F2" />
+					<ActivityIndicator size="large" color={tokens.textBrand} />
 					<Text
 						variant="text-sm/normal"
 						color="text-muted"
-						style={styles.loadingText}
+						style={[styles.loadingText, { color: tokens.textMuted }]}
 					>
 						Discovering communities...
 					</Text>
@@ -306,20 +308,25 @@ export function ServerDiscoveryView({
 
 		return (
 			<View style={styles.emptyContainer}>
-				<View style={styles.emptyIconWrapper}>
+				<View
+					style={[
+						styles.emptyIconWrapper,
+						{ backgroundColor: tokens.backgroundModifierAccent },
+					]}
+				>
 					<TableRowAssetIcon name="CompassIcon" />
 				</View>
 				<Text
 					variant="heading-md/bold"
-					color="text-normal"
-					style={styles.emptyTitle}
+					color="text-strong"
+					style={[styles.emptyTitle, { color: tokens.textStrong }]}
 				>
 					No servers found
 				</Text>
 				<Text
 					variant="text-sm/normal"
 					color="text-muted"
-					style={styles.emptySubtitle}
+					style={[styles.emptySubtitle, { color: tokens.textMuted }]}
 				>
 					{searchQuery
 						? `No communities matching "${searchQuery}". Try different keywords or categories.`
@@ -346,11 +353,11 @@ export function ServerDiscoveryView({
 			<View style={styles.footerContainer}>
 				{loadingMore ? (
 					<View style={styles.footerLoading}>
-						<ActivityIndicator size="small" color="#5865F2" />
+						<ActivityIndicator size="small" color={tokens.textBrand} />
 						<Text
 							variant="text-xs/normal"
 							color="text-muted"
-							style={styles.footerLoadingText}
+							style={[styles.footerLoadingText, { color: tokens.textMuted }]}
 						>
 							Loading more servers...
 						</Text>
@@ -456,7 +463,6 @@ const styles = StyleSheet.create({
 		width: 56,
 		height: 56,
 		borderRadius: 16,
-		backgroundColor: 'rgba(255, 255, 255, 0.08)',
 		alignItems: 'center',
 		justifyContent: 'center',
 		marginBottom: 16,

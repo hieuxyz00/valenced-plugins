@@ -5,6 +5,7 @@ import * as ReactNative from 'react-native'
 import { DiscoveryState } from '../state/discoveryState'
 import { DefaultSettings } from '../types'
 import { useSafeArea } from '../utils/safeArea'
+import { useThemeTokens } from '../utils/theme'
 import { ServerDiscoveryView } from './ServerDiscoveryView'
 import type { JsonStorage } from '@valenced/json-storage'
 import type { Settings } from '../types'
@@ -25,6 +26,7 @@ interface ServerDiscoveryTabProps {
 export function ServerDiscoveryTab({ storage }: ServerDiscoveryTabProps) {
 	const { Text } = Design
 	const insets = useSafeArea()
+	const tokens = useThemeTokens()
 	const cached = storage?.use?.() ?? storage?.cache
 	const settings = (cached as Settings | undefined) ?? DefaultSettings
 
@@ -63,6 +65,9 @@ export function ServerDiscoveryTab({ storage }: ServerDiscoveryTabProps) {
 			style={[
 				styles.tabContainer,
 				{
+					backgroundColor: tokens.backgroundBaseLower,
+				},
+				{
 					paddingTop: insets.top,
 					paddingBottom: insets.bottom,
 					paddingLeft: insets.left,
@@ -70,7 +75,7 @@ export function ServerDiscoveryTab({ storage }: ServerDiscoveryTabProps) {
 				},
 			]}
 		>
-			<View style={styles.header}>
+			<View style={[styles.header, { borderBottomColor: tokens.borderSubtle }]}>
 				<Pressable
 					accessibilityLabel="Back to Server List"
 					accessibilityRole="button"
@@ -82,8 +87,8 @@ export function ServerDiscoveryTab({ storage }: ServerDiscoveryTabProps) {
 				</Pressable>
 				<Text
 					variant="heading-md/semibold"
-					color="text-normal"
-					style={styles.headerTitle}
+					color="text-strong"
+					style={[styles.headerTitle, { color: tokens.textStrong }]}
 				>
 					Server Discovery
 				</Text>
@@ -102,7 +107,6 @@ const styles = StyleSheet.create({
 		width: '100%',
 		height: '100%',
 		flex: 1,
-		backgroundColor: '#313338',
 	},
 	header: {
 		height: 48,
@@ -110,7 +114,6 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		paddingHorizontal: 16,
 		borderBottomWidth: 1,
-		borderBottomColor: 'rgba(255, 255, 255, 0.08)',
 	},
 	backButton: {
 		marginRight: 12,

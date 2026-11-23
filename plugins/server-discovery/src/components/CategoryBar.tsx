@@ -7,6 +7,7 @@ import {
 	fetchDiscoveryCategories,
 	getCachedDiscoveryCategories,
 } from '../api/discoveryApi'
+import { useThemeTokens } from '../utils/theme'
 import type { ComponentType } from 'react'
 import type { DiscoveryCategory } from '../types'
 
@@ -103,6 +104,7 @@ export function CategoryBar({
 	onSelectCategory,
 }: CategoryBarProps) {
 	const { Text } = Design
+	const tokens = useThemeTokens()
 	const GestureScrollView = getGestureScrollView()
 
 	const [categories, setCategories] = useState<readonly DiscoveryCategory[]>(
@@ -153,14 +155,24 @@ export function CategoryBar({
 							onPress={() => onSelectCategory(cat.id)}
 							style={({ pressed }) => [
 								styles.chip,
-								isSelected && styles.chipSelected,
+								{ backgroundColor: tokens.backgroundModifierAccent },
+								isSelected && [
+									styles.chipSelected,
+									{
+										backgroundColor: tokens.backgroundModifierSelected,
+										borderColor: tokens.textBrand,
+									},
+								],
 								pressed && styles.chipPressed,
 							]}
 						>
 							<Text
 								variant="text-sm/medium"
 								color={isSelected ? 'text-brand' : 'text-muted'}
-								style={styles.label}
+								style={[
+									styles.label,
+									{ color: isSelected ? tokens.textBrand : tokens.textMuted },
+								]}
 							>
 								{cat.name}
 							</Text>
@@ -184,14 +196,11 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 12,
 		paddingVertical: 6,
 		borderRadius: 8,
-		backgroundColor: 'rgba(255, 255, 255, 0.06)',
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
 	chipSelected: {
-		backgroundColor: 'rgba(88, 101, 242, 0.2)',
 		borderWidth: 1,
-		borderColor: '#5865F2',
 	},
 	chipPressed: {
 		opacity: 0.75,

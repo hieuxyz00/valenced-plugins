@@ -9,6 +9,7 @@ import {
 	getGuildBannerUrl,
 	getGuildIconUrl,
 } from '../utils/format'
+import { useThemeTokens } from '../utils/theme'
 import type { DiscoverableGuild, GuildPreview } from '../types'
 
 function getCircleCheckIcon() {
@@ -37,6 +38,7 @@ export function ServerPreviewContent({
 	onClose,
 }: ServerPreviewContentProps) {
 	const { ActionSheet, Button, Text } = Design
+	const tokens = useThemeTokens()
 
 	const CircleCheckIcon = getCircleCheckIcon()
 	const ShieldIcon = getShieldIcon()
@@ -99,14 +101,27 @@ export function ServerPreviewContent({
 							resizeMode="cover"
 						/>
 					) : (
-						<View style={styles.bannerFallback} />
+						<View
+							style={[
+								styles.bannerFallback,
+								{ backgroundColor: tokens.backgroundSecondaryAlt },
+							]}
+						/>
 					)}
 					<View style={styles.bannerOverlay} />
 				</View>
 
 				<View style={styles.content}>
 					<View style={styles.avatarRow}>
-						<View style={styles.iconContainer}>
+						<View
+							style={[
+								styles.iconContainer,
+								{
+									borderColor: tokens.backgroundTertiary,
+									backgroundColor: tokens.backgroundSecondary,
+								},
+							]}
+						>
 							{iconUrl ? (
 								<Image
 									source={{ uri: iconUrl }}
@@ -114,8 +129,17 @@ export function ServerPreviewContent({
 									resizeMode="cover"
 								/>
 							) : (
-								<View style={styles.iconFallback}>
-									<Text variant="heading-lg/bold" color="text-normal">
+								<View
+									style={[
+										styles.iconFallback,
+										{ backgroundColor: tokens.textBrand },
+									]}
+								>
+									<Text
+										variant="heading-lg/bold"
+										color="text-strong"
+										style={{ color: tokens.textStrong }}
+									>
 										{initialLetter}
 									</Text>
 								</View>
@@ -126,40 +150,76 @@ export function ServerPreviewContent({
 					<View style={styles.titleRow}>
 						<Text
 							variant="heading-md/bold"
-							color="text-normal"
-							style={styles.titleText}
+							color="text-strong"
+							style={[styles.titleText, { color: tokens.textStrong }]}
 						>
 							{displayGuild.name}
 						</Text>
 						{isVerified && CircleCheckIcon ? (
 							<View style={styles.badgeWrapper}>
-								<CircleCheckIcon color="#23A55A" size="md" />
+								<CircleCheckIcon color={tokens.statusPositive} size="md" />
 							</View>
 						) : null}
 						{isPartnered && ShieldIcon ? (
 							<View style={styles.badgeWrapper}>
-								<ShieldIcon color="#5865F2" size="md" />
+								<ShieldIcon color={tokens.textBrand} size="md" />
 							</View>
 						) : null}
 					</View>
 
-					<View style={styles.statsContainer}>
+					<View
+						style={[
+							styles.statsContainer,
+							{ backgroundColor: tokens.backgroundModifierAccent },
+						]}
+					>
 						<View style={styles.statBox}>
-							<View style={styles.onlineDot} />
-							<Text variant="text-sm/semibold" color="text-normal">
+							<View
+								style={[
+									styles.onlineDot,
+									{ backgroundColor: tokens.statusPositive },
+								]}
+							/>
+							<Text
+								variant="text-sm/semibold"
+								color="text-strong"
+								style={{ color: tokens.textStrong }}
+							>
 								{formatCount(displayGuild.approximate_presence_count)}
 							</Text>
-							<Text variant="text-xs/normal" color="text-muted">
+							<Text
+								variant="text-xs/normal"
+								color="text-muted"
+								style={{ color: tokens.textMuted }}
+							>
 								Online
 							</Text>
 						</View>
-						<View style={styles.statDivider} />
+						<View
+							style={[
+								styles.statDivider,
+								{ backgroundColor: tokens.borderSubtle },
+							]}
+						/>
 						<View style={styles.statBox}>
-							<View style={styles.memberDot} />
-							<Text variant="text-sm/semibold" color="text-normal">
+							<View
+								style={[
+									styles.memberDot,
+									{ backgroundColor: tokens.iconMuted },
+								]}
+							/>
+							<Text
+								variant="text-sm/semibold"
+								color="text-strong"
+								style={{ color: tokens.textStrong }}
+							>
 								{formatCount(displayGuild.approximate_member_count)}
 							</Text>
-							<Text variant="text-xs/normal" color="text-muted">
+							<Text
+								variant="text-xs/normal"
+								color="text-muted"
+								style={{ color: tokens.textMuted }}
+							>
 								Members
 							</Text>
 						</View>
@@ -170,14 +230,14 @@ export function ServerPreviewContent({
 							<Text
 								variant="text-xs/semibold"
 								color="text-muted"
-								style={styles.sectionTitle}
+								style={[styles.sectionTitle, { color: tokens.textMuted }]}
 							>
 								ABOUT THIS SERVER
 							</Text>
 							<Text
 								variant="text-sm/normal"
-								color="text-normal"
-								style={styles.descriptionText}
+								color="text-default"
+								style={[styles.descriptionText, { color: tokens.textDefault }]}
 							>
 								{displayGuild.description}
 							</Text>
@@ -189,7 +249,7 @@ export function ServerPreviewContent({
 							<Text
 								variant="text-xs/semibold"
 								color="text-muted"
-								style={styles.sectionTitle}
+								style={[styles.sectionTitle, { color: tokens.textMuted }]}
 							>
 								CUSTOM EMOJIS ({preview?.emojis?.length ?? emojis.length})
 							</Text>
@@ -197,7 +257,10 @@ export function ServerPreviewContent({
 								{emojis.map(e => (
 									<View
 										key={`emoji-${e.id ?? e.name}`}
-										style={styles.emojiItem}
+										style={[
+											styles.emojiItem,
+											{ backgroundColor: tokens.backgroundModifierAccent },
+										]}
 									>
 										<Image
 											source={{
@@ -216,14 +279,24 @@ export function ServerPreviewContent({
 							<Text
 								variant="text-xs/semibold"
 								color="text-muted"
-								style={styles.sectionTitle}
+								style={[styles.sectionTitle, { color: tokens.textMuted }]}
 							>
 								FEATURES
 							</Text>
 							<View style={styles.featuresRow}>
 								{displayFeatures.map(f => (
-									<View key={`feat-${f}`} style={styles.featureBadge}>
-										<Text variant="text-xs/medium" color="text-muted">
+									<View
+										key={`feat-${f}`}
+										style={[
+											styles.featureBadge,
+											{ backgroundColor: tokens.backgroundModifierAccent },
+										]}
+									>
+										<Text
+											variant="text-xs/medium"
+											color="text-muted"
+											style={{ color: tokens.textMuted }}
+										>
 											{getFeatureLabel(f)}
 										</Text>
 									</View>
@@ -283,7 +356,6 @@ const styles = StyleSheet.create({
 	bannerFallback: {
 		width: '100%',
 		height: '100%',
-		backgroundColor: '#2B2D31',
 	},
 	bannerOverlay: {
 		...StyleSheet.absoluteFillObject,
@@ -303,9 +375,7 @@ const styles = StyleSheet.create({
 		height: 56,
 		borderRadius: 12,
 		borderWidth: 2,
-		borderColor: '#1E1F22',
 		overflow: 'hidden',
-		backgroundColor: '#2B2D31',
 	},
 	iconImage: {
 		width: '100%',
@@ -316,7 +386,6 @@ const styles = StyleSheet.create({
 		height: '100%',
 		alignItems: 'center',
 		justifyContent: 'center',
-		backgroundColor: '#5865F2',
 	},
 	titleRow: {
 		flexDirection: 'row',
@@ -333,7 +402,6 @@ const styles = StyleSheet.create({
 	statsContainer: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		backgroundColor: 'rgba(255, 255, 255, 0.05)',
 		borderRadius: 8,
 		paddingVertical: 10,
 		paddingHorizontal: 16,
@@ -348,20 +416,17 @@ const styles = StyleSheet.create({
 	statDivider: {
 		width: 1,
 		height: 20,
-		backgroundColor: 'rgba(255, 255, 255, 0.1)',
 		marginHorizontal: 12,
 	},
 	onlineDot: {
 		width: 8,
 		height: 8,
 		borderRadius: 4,
-		backgroundColor: '#23A55A',
 	},
 	memberDot: {
 		width: 8,
 		height: 8,
 		borderRadius: 4,
-		backgroundColor: '#80848E',
 	},
 	section: {
 		marginBottom: 16,
@@ -382,7 +447,6 @@ const styles = StyleSheet.create({
 		width: 36,
 		height: 36,
 		borderRadius: 6,
-		backgroundColor: 'rgba(255, 255, 255, 0.05)',
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
@@ -399,7 +463,6 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 8,
 		paddingVertical: 4,
 		borderRadius: 6,
-		backgroundColor: 'rgba(255, 255, 255, 0.07)',
 	},
 	actionButtons: {
 		marginTop: 8,

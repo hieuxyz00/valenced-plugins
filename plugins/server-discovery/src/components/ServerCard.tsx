@@ -7,6 +7,7 @@ import {
 	getGuildBannerUrl,
 	getGuildIconUrl,
 } from '../utils/format'
+import { useThemeTokens } from '../utils/theme'
 import type { DiscoverableGuild } from '../types'
 
 function getCircleCheckIcon() {
@@ -35,6 +36,7 @@ function ServerCardComponent({
 	onPreview,
 }: ServerCardProps) {
 	const { Button, Text } = Design
+	const tokens = useThemeTokens()
 
 	const [bannerError, setBannerError] = useState(false)
 	const [iconError, setIconError] = useState(false)
@@ -50,7 +52,15 @@ function ServerCardComponent({
 	const initialLetter = (guild.name ?? '').trim().charAt(0).toUpperCase() || '?'
 
 	return (
-		<View style={styles.card}>
+		<View
+			style={[
+				styles.card,
+				{
+					backgroundColor: tokens.cardPrimaryBg,
+					borderColor: tokens.borderSubtle,
+				},
+			]}
+		>
 			<Pressable
 				onPress={() => onPreview(guild)}
 				style={({ pressed }) => [pressed && styles.cardPressed]}
@@ -64,14 +74,27 @@ function ServerCardComponent({
 							onError={() => setBannerError(true)}
 						/>
 					) : (
-						<View style={styles.bannerFallback} />
+						<View
+							style={[
+								styles.bannerFallback,
+								{ backgroundColor: tokens.backgroundSecondaryAlt },
+							]}
+						/>
 					)}
 					<View style={styles.bannerOverlay} />
 				</View>
 
 				<View style={styles.content}>
 					<View style={styles.headerRow}>
-						<View style={styles.iconContainer}>
+						<View
+							style={[
+								styles.iconContainer,
+								{
+									borderColor: tokens.backgroundTertiary,
+									backgroundColor: tokens.backgroundSecondary,
+								},
+							]}
+						>
 							{iconUrl && !iconError ? (
 								<Image
 									source={{ uri: iconUrl }}
@@ -80,8 +103,17 @@ function ServerCardComponent({
 									onError={() => setIconError(true)}
 								/>
 							) : (
-								<View style={styles.iconFallback}>
-									<Text variant="heading-md/bold" color="text-normal">
+								<View
+									style={[
+										styles.iconFallback,
+										{ backgroundColor: tokens.textBrand },
+									]}
+								>
+									<Text
+										variant="heading-md/bold"
+										color="text-strong"
+										style={{ color: tokens.textStrong }}
+									>
 										{initialLetter}
 									</Text>
 								</View>
@@ -90,14 +122,32 @@ function ServerCardComponent({
 
 						<View style={styles.statsRow}>
 							<View style={styles.statItem}>
-								<View style={styles.onlineDot} />
-								<Text variant="text-xs/medium" color="text-muted">
+								<View
+									style={[
+										styles.onlineDot,
+										{ backgroundColor: tokens.statusPositive },
+									]}
+								/>
+								<Text
+									variant="text-xs/medium"
+									color="text-muted"
+									style={{ color: tokens.textMuted }}
+								>
 									{formatCount(guild.approximate_presence_count)} Online
 								</Text>
 							</View>
 							<View style={styles.statItem}>
-								<View style={styles.memberDot} />
-								<Text variant="text-xs/medium" color="text-muted">
+								<View
+									style={[
+										styles.memberDot,
+										{ backgroundColor: tokens.iconMuted },
+									]}
+								/>
+								<Text
+									variant="text-xs/medium"
+									color="text-muted"
+									style={{ color: tokens.textMuted }}
+								>
 									{formatCount(guild.approximate_member_count)} Members
 								</Text>
 							</View>
@@ -107,20 +157,20 @@ function ServerCardComponent({
 					<View style={styles.titleRow}>
 						<Text
 							variant="heading-sm/semibold"
-							color="text-normal"
+							color="text-strong"
 							numberOfLines={1}
-							style={styles.guildName}
+							style={[styles.guildName, { color: tokens.textStrong }]}
 						>
 							{guild.name}
 						</Text>
 						{isVerified && CircleCheckIcon ? (
 							<View style={styles.badgeWrapper}>
-								<CircleCheckIcon color="#23A55A" size="sm" />
+								<CircleCheckIcon color={tokens.statusPositive} size="sm" />
 							</View>
 						) : null}
 						{isPartnered && ShieldIcon ? (
 							<View style={styles.badgeWrapper}>
-								<ShieldIcon color="#5865F2" size="sm" />
+								<ShieldIcon color={tokens.textBrand} size="sm" />
 							</View>
 						) : null}
 					</View>
@@ -130,7 +180,7 @@ function ServerCardComponent({
 							variant="text-sm/normal"
 							color="text-muted"
 							numberOfLines={2}
-							style={styles.description}
+							style={[styles.description, { color: tokens.textMuted }]}
 						>
 							{guild.description}
 						</Text>
@@ -176,10 +226,8 @@ export const ServerCard = memo(ServerCardComponent)
 const styles = StyleSheet.create({
 	card: {
 		borderRadius: 8,
-		backgroundColor: 'rgba(255, 255, 255, 0.04)',
 		overflow: 'hidden',
 		borderWidth: 1,
-		borderColor: 'rgba(255, 255, 255, 0.08)',
 		marginBottom: 10,
 	},
 	cardPressed: {
@@ -200,7 +248,6 @@ const styles = StyleSheet.create({
 	bannerFallback: {
 		width: '100%',
 		height: '100%',
-		backgroundColor: '#2B2D31',
 	},
 	bannerOverlay: {
 		...StyleSheet.absoluteFillObject,
@@ -222,9 +269,7 @@ const styles = StyleSheet.create({
 		height: 48,
 		borderRadius: 12,
 		borderWidth: 2,
-		borderColor: '#1E1F22',
 		overflow: 'hidden',
-		backgroundColor: '#2B2D31',
 	},
 	iconImage: {
 		width: '100%',
@@ -235,7 +280,6 @@ const styles = StyleSheet.create({
 		height: '100%',
 		alignItems: 'center',
 		justifyContent: 'center',
-		backgroundColor: '#5865F2',
 	},
 	statsRow: {
 		flexDirection: 'row',
@@ -251,13 +295,11 @@ const styles = StyleSheet.create({
 		width: 8,
 		height: 8,
 		borderRadius: 4,
-		backgroundColor: '#23a55a',
 	},
 	memberDot: {
 		width: 8,
 		height: 8,
 		borderRadius: 4,
-		backgroundColor: '#80848e',
 	},
 	titleRow: {
 		flexDirection: 'row',
