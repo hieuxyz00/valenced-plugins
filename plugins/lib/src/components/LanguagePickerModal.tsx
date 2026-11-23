@@ -28,10 +28,6 @@ const COMMON_LANGS: ReadonlyArray<[code: string, label: string]> = [
 	['th', 'Thai'],
 ]
 
-/**
- * Native language picker action sheet.
- * Uses Discord TableRow, TableRowGroup and SearchInput.
- */
 export function LanguagePickerModal({
 	visible,
 	title,

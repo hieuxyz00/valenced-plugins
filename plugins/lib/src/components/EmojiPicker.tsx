@@ -2,6 +2,7 @@ import { getAssetIdByName, getAssets } from '@valenced/assets'
 import { Design } from '@valenced/discord/design'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { Image, Pressable, ScrollView, View } from 'react-native'
+import { useSharedThemeTokens } from '../../../../shared/theme'
 import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native'
 
 const { Text, TextInput } = Design
@@ -182,11 +183,8 @@ const ITEM_GAP = 6
 const ROW_HEIGHT = ITEM_SIZE + ITEM_GAP
 const OVERSCAN_ROWS = 3
 
-/**
- * High-performance virtualized Emoji & Icon Picker.
- * Uses Discord Design.TextInput and Design.Text.
- */
 export function EmojiPicker({ currentIcon, onSelect }: EmojiPickerProps) {
+	const themeTokens = useSharedThemeTokens()
 	const [query, setQuery] = useState('')
 	const [activeCategory, setActiveCategory] = useState<string>('All')
 	const [scrollY, setScrollY] = useState(0)
@@ -326,7 +324,6 @@ export function EmojiPicker({ currentIcon, onSelect }: EmojiPickerProps) {
 				if (height > 0) setViewportHeight(height)
 			}}
 		>
-			{/* Pinned Search Input */}
 			<View style={{ marginBottom: 8 }}>
 				<TextInput
 					label="Search Icons or Emojis"
@@ -336,7 +333,6 @@ export function EmojiPicker({ currentIcon, onSelect }: EmojiPickerProps) {
 				/>
 			</View>
 
-			{/* Category Selector Tabs */}
 			<ScrollView
 				horizontal
 				showsHorizontalScrollIndicator={false}
@@ -356,17 +352,21 @@ export function EmojiPicker({ currentIcon, onSelect }: EmojiPickerProps) {
 								paddingVertical: 6,
 								borderRadius: 8,
 								backgroundColor: isSel
-									? '#5865F2'
+									? themeTokens.brand
 									: pressed
-										? 'rgba(255, 255, 255, 0.16)'
-										: 'rgba(255, 255, 255, 0.08)',
+										? themeTokens.bgModifierHover
+										: themeTokens.bgModifierAccent,
 								opacity: pressed ? 0.8 : 1,
 								transform: [{ scale: pressed ? 0.94 : 1 }],
 							})}
 						>
 							<Text
 								variant="text-xs/bold"
-								style={{ color: isSel ? '#FFFFFF' : '#949BA4' }}
+								style={{
+									color: isSel
+										? themeTokens.interactiveActive
+										: themeTokens.textMuted,
+								}}
 							>
 								{cat}
 							</Text>
@@ -375,16 +375,17 @@ export function EmojiPicker({ currentIcon, onSelect }: EmojiPickerProps) {
 				})}
 			</ScrollView>
 
-			{/* Count Header */}
 			<Text
 				variant="text-xs/bold"
-				color="header-secondary"
-				style={{ marginBottom: 6, textTransform: 'uppercase' }}
+				style={{
+					marginBottom: 6,
+					textTransform: 'uppercase',
+					color: themeTokens.textMuted,
+				}}
 			>
 				{activeCategory} ({filteredItems.length} items)
 			</Text>
 
-			{/* Virtualized Sliding Window Grid */}
 			<ScrollView
 				ref={scrollViewRef}
 				style={{ flex: 1 }}
@@ -426,16 +427,16 @@ export function EmojiPicker({ currentIcon, onSelect }: EmojiPickerProps) {
 												height: ITEM_SIZE,
 												borderRadius: 8,
 												backgroundColor: isSel
-													? '#5865F2'
+													? themeTokens.brand
 													: pressed
-														? 'rgba(255, 255, 255, 0.18)'
-														: 'rgba(255, 255, 255, 0.06)',
+														? themeTokens.bgModifierHover
+														: themeTokens.bgModifierAccent,
 												justifyContent: 'center',
 												alignItems: 'center',
 												borderWidth: isSel ? 2 : 1,
 												borderColor: isSel
-													? '#FFFFFF'
-													: 'rgba(255, 255, 255, 0.1)',
+													? themeTokens.interactiveActive
+													: themeTokens.cardBorder,
 												transform: [{ scale: pressed ? 0.88 : 1 }],
 											})}
 										>
@@ -445,11 +446,22 @@ export function EmojiPicker({ currentIcon, onSelect }: EmojiPickerProps) {
 													style={{
 														width: 20,
 														height: 20,
-														tintColor: isSel ? '#FFFFFF' : '#DBDEE1',
+														tintColor: isSel
+															? themeTokens.interactiveActive
+															: themeTokens.interactiveNormal,
 													}}
 												/>
 											) : (
-												<Text style={{ fontSize: 16 }}>🏷️</Text>
+												<Text
+													variant="text-xs/bold"
+													style={{
+														color: isSel
+															? themeTokens.interactiveActive
+															: themeTokens.interactiveNormal,
+													}}
+												>
+													#
+												</Text>
 											)}
 										</Pressable>
 									)
@@ -465,16 +477,16 @@ export function EmojiPicker({ currentIcon, onSelect }: EmojiPickerProps) {
 											height: ITEM_SIZE,
 											borderRadius: 8,
 											backgroundColor: isSel
-												? '#5865F2'
+												? themeTokens.brand
 												: pressed
-													? 'rgba(255, 255, 255, 0.18)'
-													: 'rgba(255, 255, 255, 0.06)',
+													? themeTokens.bgModifierHover
+													: themeTokens.bgModifierAccent,
 											justifyContent: 'center',
 											alignItems: 'center',
 											borderWidth: isSel ? 2 : 1,
 											borderColor: isSel
-												? '#FFFFFF'
-												: 'rgba(255, 255, 255, 0.1)',
+												? themeTokens.interactiveActive
+												: themeTokens.cardBorder,
 											transform: [{ scale: pressed ? 0.88 : 1 }],
 										})}
 									>

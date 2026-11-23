@@ -15,6 +15,7 @@ import {
 	ScrollView,
 	View,
 } from 'react-native'
+import { useSharedThemeTokens } from '../../../../shared/theme'
 import { EMOJI_CATEGORIES } from './EmojiPicker'
 import type { ComponentType } from 'react'
 import type {
@@ -732,6 +733,7 @@ const EmojiGridCell = memo(
 		item: DiscordEmojiItem
 		onPress: (item: DiscordEmojiItem) => void
 	}) => {
+		const themeTokens = useSharedThemeTokens()
 		const handlePress = useCallback(() => {
 			onPress(item)
 		}, [item, onPress])
@@ -746,7 +748,7 @@ const EmojiGridCell = memo(
 						height: ITEM_SIZE,
 						borderRadius: 8,
 						backgroundColor: pressed
-							? 'rgba(255, 255, 255, 0.2)'
+							? themeTokens.bgModifierHover
 							: 'transparent',
 						justifyContent: 'center',
 						alignItems: 'center',
@@ -770,7 +772,9 @@ const EmojiGridCell = memo(
 					width: ITEM_SIZE,
 					height: ITEM_SIZE,
 					borderRadius: 8,
-					backgroundColor: pressed ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
+					backgroundColor: pressed
+						? themeTokens.bgModifierHover
+						: 'transparent',
 					justifyContent: 'center',
 					alignItems: 'center',
 					transform: [{ scale: pressed ? 0.9 : 1 }],
@@ -806,6 +810,7 @@ export function DiscordEmojiPicker({
 	containerStyle,
 }: DiscordEmojiPickerProps) {
 	const { Text, TextInput } = Design
+	const themeTokens = useSharedThemeTokens()
 
 	const targetGuildId =
 		guildId ?? channel?.guild_id ?? channel?.guildId ?? undefined
@@ -1023,7 +1028,7 @@ export function DiscordEmojiPicker({
 		<View
 			style={[
 				{
-					backgroundColor: 'rgba(0, 0, 0, 0.15)',
+					backgroundColor: themeTokens.bgSecondary,
 					borderRadius: 12,
 					padding: 8,
 				},
@@ -1061,16 +1066,18 @@ export function DiscordEmojiPicker({
 									paddingVertical: 6,
 									borderRadius: 14,
 									backgroundColor: isSelected
-										? '#5865F2'
+										? themeTokens.brand
 										: pressed
-											? 'rgba(255, 255, 255, 0.15)'
-											: 'rgba(255, 255, 255, 0.08)',
+											? themeTokens.bgModifierHover
+											: themeTokens.bgModifierAccent,
 								})}
 							>
 								<Text
 									variant="text-xs/semibold"
 									style={{
-										color: isSelected ? '#FFFFFF' : '#B5BAC1',
+										color: isSelected
+											? themeTokens.interactiveActive
+											: themeTokens.textMuted,
 									}}
 								>
 									{tab.label}
@@ -1091,10 +1098,10 @@ export function DiscordEmojiPicker({
 							justifyContent: 'center',
 							alignItems: 'center',
 							backgroundColor: isSearching
-								? '#5865F2'
+								? themeTokens.brand
 								: pressed
-									? 'rgba(255, 255, 255, 0.15)'
-									: 'rgba(255, 255, 255, 0.08)',
+									? themeTokens.bgModifierHover
+									: themeTokens.bgModifierAccent,
 						})}
 					>
 						{MagnifyingGlassIcon ? (
@@ -1144,11 +1151,14 @@ export function DiscordEmojiPicker({
 								paddingVertical: 6,
 								borderRadius: 8,
 								backgroundColor: pressed
-									? 'rgba(255, 255, 255, 0.15)'
-									: 'rgba(255, 255, 255, 0.08)',
+									? themeTokens.bgModifierHover
+									: themeTokens.bgModifierAccent,
 							})}
 						>
-							<Text variant="text-xs/semibold" style={{ color: '#00A8FC' }}>
+							<Text
+								variant="text-xs/semibold"
+								style={{ color: themeTokens.brand }}
+							>
 								Discord
 							</Text>
 						</Pressable>
@@ -1182,7 +1192,10 @@ export function DiscordEmojiPicker({
 								gap: 6,
 							}}
 						>
-							<Text variant="text-sm/normal" color="text-muted">
+							<Text
+								variant="text-sm/normal"
+								style={{ color: themeTokens.textMuted }}
+							>
 								{searchQuery.trim()
 									? `No emojis matching "${searchQuery.trim()}"`
 									: activeTabId === 'server'
@@ -1197,12 +1210,15 @@ export function DiscordEmojiPicker({
 										paddingVertical: 6,
 										borderRadius: 8,
 										backgroundColor: pressed
-											? 'rgba(255, 255, 255, 0.15)'
-											: 'rgba(255, 255, 255, 0.08)',
+											? themeTokens.bgModifierHover
+											: themeTokens.bgModifierAccent,
 										marginTop: 4,
 									})}
 								>
-									<Text variant="text-xs/semibold" style={{ color: '#00A8FC' }}>
+									<Text
+										variant="text-xs/semibold"
+										style={{ color: themeTokens.brand }}
+									>
 										Browse Discord Emoji Picker
 									</Text>
 								</Pressable>

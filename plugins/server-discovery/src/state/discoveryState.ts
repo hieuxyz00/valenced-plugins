@@ -30,12 +30,6 @@ function getDrawerModule(): DrawerModule | undefined {
 		const [mod] = lookupModule(withProps<DrawerModule>('setHomeDrawerState'))
 		if (typeof mod?.setHomeDrawerState === 'function') return mod
 	} catch {}
-	if (typeof __r === 'function') {
-		try {
-			const mod = __r(5148) as DrawerModule
-			if (typeof mod?.setHomeDrawerState === 'function') return mod
-		} catch {}
-	}
 	return undefined
 }
 

@@ -177,7 +177,7 @@ export function ServerPreviewContent({
 							<View
 								style={[
 									styles.onlineDot,
-									{ backgroundColor: tokens.statusPositive },
+									{ backgroundColor: tokens.statusOnline },
 								]}
 							/>
 							<Text

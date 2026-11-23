@@ -21,7 +21,7 @@ function ServerDiscoveryRouteScreen({
 	const settings = (storage?.cache as Settings | undefined) ?? DefaultSettings
 	return (
 		<View style={styles.container}>
-			<ServerDiscoveryView settings={settings} isModal={false} />
+			<ServerDiscoveryView isModal={false} settings={settings} />
 		</View>
 	)
 }
@@ -41,9 +41,13 @@ export function patchSettingsDiscovery(
 			type: 'route',
 			useTitle: () => 'Server Discovery',
 			IconComponent: () => <TableRowAssetIcon name="CompassIcon" />,
-			usePredicate: () =>
-				((storage.cache as Settings | undefined) ?? DefaultSettings)
-					.enableSettingsItem,
+			usePredicate: () => {
+				const settings =
+					(storage.cache as Settings | undefined) ?? DefaultSettings
+				return (
+					settings.enableSettingsItem ?? settings.enableSettingsEntry ?? true
+				)
+			},
 			screen: {
 				route: DISCOVERY_ROUTE_NAME,
 				getComponent: () => ScreenComponent,

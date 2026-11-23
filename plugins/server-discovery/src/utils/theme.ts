@@ -27,12 +27,16 @@ export interface ThemeTokens {
 	textBrand: string
 	brand500: string
 	statusPositive: string
+	statusOnline: string
 	statusDanger: string
 	iconDefault: string
 	iconMuted: string
 	interactiveNormal: string
 	interactiveActive: string
 	pillBg: string
+	guildBarIconBackgroundDefault: string
+	guildBarIconDefault: string
+	[customField: string]: string | boolean | undefined
 }
 
 interface TokensModuleInternal {
@@ -46,9 +50,10 @@ interface TokensModuleInternal {
 
 interface TokensModule {
 	RawColor?: Record<string, string>
-	SemanticColor?: Record<string, object>
+	SemanticColor?: Record<string, Record<string, { raw?: string } | undefined>>
 	default?: {
 		colors?: Record<string, object>
+		unsafe_rawColors?: Record<string, string>
 		internal?: TokensModuleInternal
 	}
 }
@@ -62,6 +67,31 @@ interface ThemeStoreInterface {
 
 let cachedTokensModule: TokensModule | undefined
 let cachedThemeStore: ThemeStoreInterface | undefined
+let cachedAllTokens: string[] | undefined
+let currentThemeOverrides: Record<string, string> | undefined
+const themeListeners = new Set<() => void>()
+
+export function setThemeOverrides(overrides?: Record<string, string>): void {
+	currentThemeOverrides = overrides
+	notifyThemeListeners()
+}
+
+export function getThemeOverrides(): Record<string, string> | undefined {
+	return currentThemeOverrides
+}
+
+export function resetThemeOverrides(): void {
+	currentThemeOverrides = undefined
+	notifyThemeListeners()
+}
+
+function notifyThemeListeners(): void {
+	for (const listener of themeListeners) {
+		try {
+			listener()
+		} catch {}
+	}
+}
 
 export function getTokensModule(): TokensModule | undefined {
 	if (cachedTokensModule) {
@@ -97,6 +127,7 @@ export function getTokensModule(): TokensModule | undefined {
 
 export function resetTokensModuleCache(): void {
 	cachedTokensModule = undefined
+	cachedAllTokens = undefined
 }
 
 export function getThemeStore(): ThemeStoreInterface | undefined {
@@ -163,18 +194,32 @@ export function resolveThemeSemanticColor(
 	try {
 		const tokensMod = getTokensModule()
 		const internal = tokensMod?.default?.internal
-		if (internal?.resolveSemanticColor) {
-			const colorToken =
-				tokensMod?.default?.colors?.[tokenName] ??
-				tokensMod?.SemanticColor?.[tokenName]
-			if (colorToken) {
-				const resolved = internal.resolveSemanticColor(theme, colorToken)
+		const defColorToken = tokensMod?.default?.colors?.[tokenName]
+		if (internal?.resolveSemanticColor && defColorToken) {
+			try {
+				const resolved = internal.resolveSemanticColor(theme, defColorToken)
 				if (typeof resolved === 'string' && resolved.length > 0) {
 					return resolved
 				}
+			} catch {}
+		}
+		const semDef = tokensMod?.SemanticColor?.[tokenName] as
+			| Record<string, { raw?: string }>
+			| undefined
+		if (semDef && typeof semDef === 'object') {
+			const themeRaw = semDef[theme]?.raw ?? semDef.dark?.raw
+			if (typeof themeRaw === 'string') {
+				const resolvedRaw =
+					tokensMod?.RawColor?.[themeRaw] ??
+					tokensMod?.default?.unsafe_rawColors?.[themeRaw]
+				if (typeof resolvedRaw === 'string' && resolvedRaw.length > 0) {
+					return resolvedRaw
+				}
 			}
 		}
-		const rawColor = tokensMod?.RawColor?.[tokenName]
+		const rawColor =
+			tokensMod?.RawColor?.[tokenName] ??
+			tokensMod?.default?.unsafe_rawColors?.[tokenName]
 		if (typeof rawColor === 'string' && rawColor.length > 0) {
 			return rawColor
 		}
@@ -202,7 +247,9 @@ export function resolveRawColor(
 ): string {
 	try {
 		const tokensMod = getTokensModule()
-		const rawColor = tokensMod?.RawColor?.[rawName]
+		const rawColor =
+			tokensMod?.RawColor?.[rawName] ??
+			tokensMod?.default?.unsafe_rawColors?.[rawName]
 		if (typeof rawColor === 'string' && rawColor.length > 0) {
 			return rawColor
 		}
@@ -210,8 +257,110 @@ export function resolveRawColor(
 	return fallbackColor
 }
 
+export function resolveCustomTokenOrColor(
+	value: string | undefined,
+	defaultColor: string,
+	theme: ThemeBase = getActiveTheme(),
+): string {
+	if (!value || typeof value !== 'string') {
+		return defaultColor
+	}
+	const trimmed = value.trim()
+	if (!trimmed) {
+		return defaultColor
+	}
+	if (
+		trimmed.startsWith('#') ||
+		trimmed.startsWith('rgb(') ||
+		trimmed.startsWith('rgba(') ||
+		trimmed.startsWith('hsl(') ||
+		trimmed.startsWith('hsla(')
+	) {
+		return trimmed
+	}
+	const resolvedSemantic = resolveThemeSemanticColor(trimmed, '', theme)
+	if (resolvedSemantic.length > 0) {
+		return resolvedSemantic
+	}
+	const resolvedRaw = resolveRawColor(trimmed, '')
+	if (resolvedRaw.length > 0) {
+		return resolvedRaw
+	}
+	return defaultColor
+}
+
+export function getAllDiscordTokenNames(): string[] {
+	if (cachedAllTokens && cachedAllTokens.length > 0) {
+		return cachedAllTokens
+	}
+	try {
+		const tokensMod = getTokensModule()
+		const semantic = Object.keys(
+			tokensMod?.default?.colors ?? tokensMod?.SemanticColor ?? {},
+		)
+		const raw = Object.keys(
+			tokensMod?.RawColor ?? tokensMod?.default?.unsafe_rawColors ?? {},
+		)
+		const set = new Set<string>([...semantic, ...raw])
+		const sorted = Array.from(set).sort()
+		if (sorted.length > 0) {
+			cachedAllTokens = sorted
+			return cachedAllTokens
+		}
+	} catch {}
+	return []
+}
+
+export function filterDiscordTokens(
+	query: string,
+	maxResults = 12,
+	theme: ThemeBase = getActiveTheme(),
+): Array<{ name: string; hex: string }> {
+	const all = getAllDiscordTokenNames()
+	const q = query.trim().toUpperCase()
+	let matchedNames: string[] = []
+	if (!q) {
+		matchedNames = [
+			'STATUS_ONLINE',
+			'ICON_STATUS_ONLINE',
+			'TEXT_STATUS_ONLINE',
+			'STATUS_POSITIVE',
+			'STATUS_POSITIVE_TEXT',
+			'STATUS_DANGER',
+			'CARD_SECONDARY_BG',
+			'BACKGROUND_PRIMARY',
+			'BACKGROUND_SECONDARY',
+			'TEXT_DEFAULT',
+			'TEXT_STRONG',
+			'BRAND_500',
+			'GREEN_360',
+			'GREEN_400',
+		]
+	} else {
+		const prefixMatches: string[] = []
+		const otherMatches: string[] = []
+		for (const name of all) {
+			if (name.startsWith(q)) {
+				prefixMatches.push(name)
+			} else if (name.includes(q)) {
+				otherMatches.push(name)
+			}
+			if (prefixMatches.length + otherMatches.length >= maxResults * 2) {
+				break
+			}
+		}
+		matchedNames = [...prefixMatches, ...otherMatches].slice(0, maxResults)
+	}
+
+	return matchedNames.map(name => ({
+		name,
+		hex: resolveThemeSemanticColor(name, '', theme),
+	}))
+}
+
 export function getThemeTokens(
 	theme: ThemeBase = getActiveTheme(),
+	overrides: Record<string, string> | undefined = currentThemeOverrides,
 ): ThemeTokens {
 	const isLight = theme === 'light'
 	const isMidnight = theme === 'midnight'
@@ -303,146 +452,289 @@ export function getThemeTokens(
 		theme,
 	)
 
-	return {
+	const defaultStatusOnline = resolveFirstSemanticColor(
+		['STATUS_ONLINE', 'ICON_STATUS_ONLINE', 'TEXT_STATUS_ONLINE'],
+		isLight
+			? resolveRawColor('GREEN_400', resolveRawColor('GREEN_360', ''))
+			: resolveRawColor('GREEN_360', resolveRawColor('GREEN_400', '')),
+		theme,
+	)
+	const defaultStatusPositive = resolveFirstSemanticColor(
+		['STATUS_POSITIVE_TEXT', 'TEXT_FEEDBACK_POSITIVE', 'STATUS_POSITIVE'],
+		resolveRawColor('GREEN_360', resolveRawColor('STATUS_POSITIVE', '')),
+		theme,
+	)
+	const defaultStatusDanger = resolveFirstSemanticColor(
+		['STATUS_DANGER', 'TEXT_FEEDBACK_CRITICAL'],
+		resolveRawColor('RED_400', resolveRawColor('STATUS_DANGER', '#f23f43')),
+		theme,
+	)
+	const defaultBrand500 = resolveRawColor('BRAND_500', '#5865F2')
+
+	const result: ThemeTokens = {
 		theme,
 		isLight,
-		backgroundBaseLower: resolveFirstSemanticColor(
-			['BACKGROUND_BASE_LOWER', 'BACKGROUND_BASE_LOW'],
-			defaultBgBaseLower,
+		backgroundBaseLower: resolveCustomTokenOrColor(
+			overrides?.backgroundBaseLower,
+			resolveFirstSemanticColor(
+				['BACKGROUND_BASE_LOWER', 'BACKGROUND_BASE_LOW'],
+				defaultBgBaseLower,
+				theme,
+			),
 			theme,
 		),
-		backgroundBaseLowest: resolveFirstSemanticColor(
-			['BACKGROUND_BASE_LOWEST'],
-			defaultBgBaseLowest,
+		backgroundBaseLowest: resolveCustomTokenOrColor(
+			overrides?.backgroundBaseLowest,
+			resolveFirstSemanticColor(
+				['BACKGROUND_BASE_LOWEST'],
+				defaultBgBaseLowest,
+				theme,
+			),
 			theme,
 		),
-		backgroundPrimary: resolveFirstSemanticColor(
-			['BACKGROUND_PRIMARY', 'BACKGROUND_BASE_LOWER'],
-			defaultBgPrimary,
+		backgroundPrimary: resolveCustomTokenOrColor(
+			overrides?.backgroundPrimary,
+			resolveFirstSemanticColor(
+				['BACKGROUND_PRIMARY', 'BACKGROUND_BASE_LOWER'],
+				defaultBgPrimary,
+				theme,
+			),
 			theme,
 		),
-		backgroundSecondary: resolveFirstSemanticColor(
-			[
-				'CARD_SECONDARY_BG',
-				'BACKGROUND_SECONDARY_ALT',
-				'BACKGROUND_SURFACE_HIGH',
-				'BACKGROUND_SECONDARY',
-			],
-			defaultBgSecondary,
+		backgroundSecondary: resolveCustomTokenOrColor(
+			overrides?.backgroundSecondary,
+			resolveFirstSemanticColor(
+				[
+					'CARD_SECONDARY_BG',
+					'BACKGROUND_SECONDARY_ALT',
+					'BACKGROUND_SURFACE_HIGH',
+					'BACKGROUND_SECONDARY',
+				],
+				defaultBgSecondary,
+				theme,
+			),
 			theme,
 		),
-		backgroundSecondaryAlt: resolveFirstSemanticColor(
-			[
-				'BACKGROUND_SECONDARY_ALT',
-				'CARD_SECONDARY_BG',
-				'BACKGROUND_SURFACE_HIGH',
-			],
-			defaultBgSecondaryAlt,
+		backgroundSecondaryAlt: resolveCustomTokenOrColor(
+			overrides?.backgroundSecondaryAlt,
+			resolveFirstSemanticColor(
+				[
+					'BACKGROUND_SECONDARY_ALT',
+					'CARD_SECONDARY_BG',
+					'BACKGROUND_SURFACE_HIGH',
+				],
+				defaultBgSecondaryAlt,
+				theme,
+			),
 			theme,
 		),
-		backgroundTertiary: resolveFirstSemanticColor(
-			[
-				'BACKGROUND_BASE_LOWEST',
-				'BACKGROUND_SURFACE_HIGHEST',
-				'BACKGROUND_TERTIARY',
-			],
-			defaultBgTertiary,
+		backgroundTertiary: resolveCustomTokenOrColor(
+			overrides?.backgroundTertiary,
+			resolveFirstSemanticColor(
+				[
+					'BACKGROUND_BASE_LOWEST',
+					'BACKGROUND_SURFACE_HIGHEST',
+					'BACKGROUND_TERTIARY',
+				],
+				defaultBgTertiary,
+				theme,
+			),
 			theme,
 		),
-		backgroundFloating: resolveFirstSemanticColor(
-			[
-				'BACKGROUND_SURFACE_HIGH',
-				'BACKGROUND_SECONDARY_ALT',
-				'BACKGROUND_FLOATING',
-			],
-			defaultBgFloating,
+		backgroundFloating: resolveCustomTokenOrColor(
+			overrides?.backgroundFloating,
+			resolveFirstSemanticColor(
+				[
+					'BACKGROUND_SURFACE_HIGH',
+					'BACKGROUND_SECONDARY_ALT',
+					'BACKGROUND_FLOATING',
+				],
+				defaultBgFloating,
+				theme,
+			),
 			theme,
 		),
-		backgroundModifierAccent: resolveFirstSemanticColor(
-			[
-				'BACKGROUND_MOD_SUBTLE',
-				'BACKGROUND_MOD_NORMAL',
-				'BACKGROUND_MOD_MUTED',
-				'BACKGROUND_MODIFIER_ACCENT',
-			],
-			defaultModifierAccent,
+		backgroundModifierAccent: resolveCustomTokenOrColor(
+			overrides?.backgroundModifierAccent,
+			resolveFirstSemanticColor(
+				[
+					'BACKGROUND_MOD_SUBTLE',
+					'BACKGROUND_MOD_NORMAL',
+					'BACKGROUND_MOD_MUTED',
+					'BACKGROUND_MODIFIER_ACCENT',
+				],
+				defaultModifierAccent,
+				theme,
+			),
 			theme,
 		),
-		backgroundModifierSelected: resolveFirstSemanticColor(
-			[
-				'INTERACTIVE_BACKGROUND_SELECTED',
-				'INTERACTIVE_ACCENT_BACKGROUND_SELECTED',
-				'BACKGROUND_MODIFIER_SELECTED',
-			],
-			defaultModifierSelected,
+		backgroundModifierSelected: resolveCustomTokenOrColor(
+			overrides?.backgroundModifierSelected,
+			resolveFirstSemanticColor(
+				[
+					'INTERACTIVE_BACKGROUND_SELECTED',
+					'INTERACTIVE_ACCENT_BACKGROUND_SELECTED',
+					'BACKGROUND_MODIFIER_SELECTED',
+				],
+				defaultModifierSelected,
+				theme,
+			),
 			theme,
 		),
-		cardPrimaryBg: resolveFirstSemanticColor(
-			[
-				'CARD_SECONDARY_BG',
-				'CARD_BACKGROUND_DEFAULT',
-				'CARD_MUTED_BG',
-				'CARD_PRIMARY_BG',
-				'BACKGROUND_SECONDARY_ALT',
-			],
-			defaultCardPrimaryBg,
+		cardPrimaryBg: resolveCustomTokenOrColor(
+			overrides?.cardPrimaryBg,
+			resolveFirstSemanticColor(
+				[
+					'CARD_SECONDARY_BG',
+					'CARD_BACKGROUND_DEFAULT',
+					'CARD_MUTED_BG',
+					'CARD_PRIMARY_BG',
+					'BACKGROUND_SECONDARY_ALT',
+				],
+				defaultCardPrimaryBg,
+				theme,
+			),
 			theme,
 		),
-		borderSubtle: resolveFirstSemanticColor(
-			['BORDER_SUBTLE'],
-			defaultBorderSubtle,
+		borderSubtle: resolveCustomTokenOrColor(
+			overrides?.borderSubtle,
+			resolveFirstSemanticColor(['BORDER_SUBTLE'], defaultBorderSubtle, theme),
 			theme,
 		),
-		borderStrong: resolveFirstSemanticColor(
-			['BORDER_STRONG'],
-			defaultBorderStrong,
+		borderStrong: resolveCustomTokenOrColor(
+			overrides?.borderStrong,
+			resolveFirstSemanticColor(['BORDER_STRONG'], defaultBorderStrong, theme),
 			theme,
 		),
-		textDefault,
-		textStrong,
-		textNormal: textDefault,
-		textMuted,
-		textBrand: resolveFirstSemanticColor(
-			['TEXT_BRAND', 'BRAND_500'],
-			resolveRawColor('BRAND_500', '#5865F2'),
+		textDefault: resolveCustomTokenOrColor(
+			overrides?.textDefault,
+			textDefault,
 			theme,
 		),
-		brand500: resolveRawColor('BRAND_500', '#5865F2'),
-		statusPositive: resolveFirstSemanticColor(
-			['STATUS_POSITIVE_TEXT', 'TEXT_FEEDBACK_POSITIVE', 'STATUS_POSITIVE'],
-			'#23a55a',
+		textStrong: resolveCustomTokenOrColor(
+			overrides?.textStrong,
+			textStrong,
 			theme,
 		),
-		statusDanger: resolveFirstSemanticColor(
-			['STATUS_DANGER', 'TEXT_FEEDBACK_CRITICAL'],
-			'#f23f43',
+		textNormal: resolveCustomTokenOrColor(
+			overrides?.textNormal,
+			textDefault,
 			theme,
 		),
-		iconDefault,
-		iconMuted,
-		interactiveNormal: iconDefault,
-		interactiveActive: resolveFirstSemanticColor(
-			['INTERACTIVE_ACTIVE', 'TEXT_STRONG'],
-			defaultInteractiveActive,
+		textMuted: resolveCustomTokenOrColor(
+			overrides?.textMuted,
+			textMuted,
 			theme,
 		),
-		pillBg: resolveFirstSemanticColor(
-			['TEXT_STRONG', 'TEXT_DEFAULT', 'HEADER_PRIMARY'],
-			defaultPillBg,
+		textBrand: resolveCustomTokenOrColor(
+			overrides?.textBrand,
+			resolveFirstSemanticColor(
+				['TEXT_BRAND', 'BRAND_500'],
+				defaultBrand500,
+				theme,
+			),
+			theme,
+		),
+		brand500: resolveCustomTokenOrColor(
+			overrides?.brand500,
+			defaultBrand500,
+			theme,
+		),
+		statusPositive: resolveCustomTokenOrColor(
+			overrides?.statusPositive,
+			defaultStatusPositive,
+			theme,
+		),
+		statusOnline: resolveCustomTokenOrColor(
+			overrides?.statusOnline,
+			defaultStatusOnline,
+			theme,
+		),
+		statusDanger: resolveCustomTokenOrColor(
+			overrides?.statusDanger,
+			defaultStatusDanger,
+			theme,
+		),
+		iconDefault: resolveCustomTokenOrColor(
+			overrides?.iconDefault,
+			iconDefault,
+			theme,
+		),
+		iconMuted: resolveCustomTokenOrColor(
+			overrides?.iconMuted,
+			iconMuted,
+			theme,
+		),
+		interactiveNormal: resolveCustomTokenOrColor(
+			overrides?.interactiveNormal,
+			iconDefault,
+			theme,
+		),
+		interactiveActive: resolveCustomTokenOrColor(
+			overrides?.interactiveActive,
+			resolveFirstSemanticColor(
+				['INTERACTIVE_ACTIVE', 'TEXT_STRONG'],
+				defaultInteractiveActive,
+				theme,
+			),
+			theme,
+		),
+		pillBg: resolveCustomTokenOrColor(
+			overrides?.pillBg,
+			resolveFirstSemanticColor(
+				['TEXT_STRONG', 'TEXT_DEFAULT', 'HEADER_PRIMARY'],
+				defaultPillBg,
+				theme,
+			),
+			theme,
+		),
+		guildBarIconBackgroundDefault: resolveCustomTokenOrColor(
+			overrides?.guildBarIconBackgroundDefault,
+			resolveThemeSemanticColor(
+				'MOBILE_GUILDBAR_ICON_BACKGROUND_DEFAULT',
+				'#97979f1f',
+				theme,
+			),
+			theme,
+		),
+		guildBarIconDefault: resolveCustomTokenOrColor(
+			overrides?.guildBarIconDefault,
+			resolveThemeSemanticColor(
+				'MOBILE_GUILDBAR_ICON_DEFAULT',
+				'#c5c6ca',
+				theme,
+			),
 			theme,
 		),
 	}
+
+	if (overrides) {
+		for (const [key, val] of Object.entries(overrides)) {
+			if (!(key in result) && typeof val === 'string') {
+				result[key] = resolveCustomTokenOrColor(val, '', theme)
+			}
+		}
+	}
+
+	return result
 }
 
 export function subscribeThemeChange(listener: () => void): () => void {
+	themeListeners.add(listener)
 	const store = getThemeStore()
+	const onStoreChange = () => {
+		listener()
+	}
 	if (store?.addChangeListener) {
-		store.addChangeListener(listener)
+		store.addChangeListener(onStoreChange)
 		return () => {
-			store.removeChangeListener?.(listener)
+			themeListeners.delete(listener)
+			store.removeChangeListener?.(onStoreChange)
 		}
 	}
-	return () => {}
+	return () => {
+		themeListeners.delete(listener)
+	}
 }
 
 export function useThemeTokens(): ThemeTokens {
@@ -456,4 +748,50 @@ export function useThemeTokens(): ThemeTokens {
 	void tick
 	const theme = getActiveTheme()
 	return getThemeTokens(theme)
+}
+
+interface WrapperStylesModule {
+	useGuildsBarAnimatedWrapperStyles?: () => {
+		pressableWrapper?: Record<string, unknown>
+		itemShape?: Record<string, unknown>
+	}
+}
+
+let cachedWrapperStylesMod: WrapperStylesModule | undefined
+
+export function useStockTileStyles(): {
+	pressableWrapper?: Record<string, unknown>
+	itemShape?: Record<string, unknown>
+} {
+	if (!cachedWrapperStylesMod) {
+		try {
+			const [mod] = lookupModule(
+				withProps<WrapperStylesModule>('useGuildsBarAnimatedWrapperStyles'),
+			)
+			if (mod) cachedWrapperStylesMod = mod
+		} catch {}
+	}
+	if (
+		typeof cachedWrapperStylesMod?.useGuildsBarAnimatedWrapperStyles ===
+		'function'
+	) {
+		try {
+			return cachedWrapperStylesMod.useGuildsBarAnimatedWrapperStyles()
+		} catch {}
+	}
+	return {
+		itemShape: {
+			borderRadius: 16,
+		},
+		pressableWrapper: {
+			position: 'relative',
+			paddingTop: 6,
+			paddingBottom: 6,
+			paddingLeft: 12,
+			height: 60,
+			width: 72,
+			alignItems: 'flex-start',
+			justifyContent: 'center',
+		},
+	}
 }

@@ -4,7 +4,7 @@
 	"name": "Hieuxyz Lib",
 	"description": "Shared utility library and native SAF helpers for hieuxyz plugins.",
 	"author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"icon": "WrenchIcon",
 	"enabledByDefault": true,
 	"dependencies": {

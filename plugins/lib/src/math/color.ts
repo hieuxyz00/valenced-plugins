@@ -1,7 +1,3 @@
-/**
- * Exact color conversion and manipulation utilities for HTML Color Codes style picker.
- */
-
 export interface RgbColor {
 	r: number
 	g: number
@@ -9,18 +5,17 @@ export interface RgbColor {
 }
 
 export interface HsvColor {
-	h: number // 0 - 360
-	s: number // 0 - 1
-	v: number // 0 - 1
+	h: number
+	s: number
+	v: number
 }
 
 export interface HslColor {
-	h: number // 0 - 360
-	s: number // 0 - 100
-	l: number // 0 - 100
+	h: number
+	s: number
+	l: number
 }
 
-/** Convert HSV (h: 0-360, s: 0-1, v: 0-1) to RGB (r, g, b: 0-255). */
 export function hsvToRgb(h: number, s: number, v: number): RgbColor {
 	const safeH = ((h % 360) + 360) % 360
 	const safeS = Math.max(0, Math.min(1, s))
@@ -38,7 +33,6 @@ export function hsvToRgb(h: number, s: number, v: number): RgbColor {
 	}
 }
 
-/** Convert RGB (r, g, b: 0-255) to HSV (h: 0-360, s: 0-1, v: 0-1). */
 export function rgbToHsv(r: number, g: number, b: number): HsvColor {
 	const rn = Math.max(0, Math.min(255, r)) / 255
 	const gn = Math.max(0, Math.min(255, g)) / 255
@@ -74,7 +68,6 @@ export function rgbToHsv(r: number, g: number, b: number): HsvColor {
 	}
 }
 
-/** Convert RGB to Hex string (#RRGGBB). */
 export function rgbToHex(r: number, g: number, b: number): string {
 	const clamp = (n: number) =>
 		Math.max(0, Math.min(255, Math.round(n)))
@@ -85,7 +78,6 @@ export function rgbToHex(r: number, g: number, b: number): string {
 	return `#${clamp(r)}${clamp(g)}${clamp(b)}`
 }
 
-/** Parse Hex string (#RGB or #RRGGBB) to RGB. */
 export function hexToRgb(hex: string): RgbColor | null {
 	const clean = hex.trim().replace(/^#/, '')
 	if (clean.length === 3) {
@@ -105,7 +97,6 @@ export function hexToRgb(hex: string): RgbColor | null {
 	return null
 }
 
-/** Convert RGB to HSL. */
 export function rgbToHsl(r: number, g: number, b: number): HslColor {
 	const rn = Math.max(0, Math.min(255, r)) / 255
 	const gn = Math.max(0, Math.min(255, g)) / 255
@@ -141,12 +132,10 @@ export function rgbToHsl(r: number, g: number, b: number): HslColor {
 	}
 }
 
-/** Calculate perceived luminance of a hex or rgb string (0 to 1). */
 export function getLuminance(r: number, g: number, b: number): number {
 	return (0.299 * r + 0.587 * g + 0.114 * b) / 255
 }
 
-/** Get contrasting text color (#000000 or #FFFFFF) for a given background hex. */
 export function getContrastColor(hex: string): '#000000' | '#FFFFFF' {
 	const rgb = hexToRgb(hex)
 	if (!rgb) return '#FFFFFF'

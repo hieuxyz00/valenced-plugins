@@ -133,12 +133,7 @@ export function CategoryBar({
 	}
 
 	return (
-		<View
-			style={styles.container}
-			onStartShouldSetResponder={() => true}
-			onMoveShouldSetResponder={() => true}
-			onResponderTerminationRequest={() => false}
-		>
+		<View style={styles.container}>
 			<GestureScrollView
 				horizontal
 				disallowInterruption={true}
@@ -152,7 +147,8 @@ export function CategoryBar({
 					return (
 						<Pressable
 							key={`cat-${cat.id}`}
-							onPress={() => onSelectCategory(cat.id)}
+							onPress={() => onSelectCategory(Number(cat.id))}
+							hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
 							style={({ pressed }) => [
 								styles.chip,
 								{ backgroundColor: tokens.backgroundModifierAccent },

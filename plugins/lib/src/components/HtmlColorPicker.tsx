@@ -1,6 +1,7 @@
 import { Design } from '@valenced/discord/design'
 import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import { Pressable, View } from 'react-native'
+import { useSharedThemeTokens } from '../../../../shared/theme'
 import {
 	getContrastColor,
 	hexToRgb,
@@ -56,11 +57,6 @@ function parseInitialGradient(gradientStr?: string): {
 	return { angle, start, end }
 }
 
-/**
- * Compact Interactive Visual Color Picker.
- * Features 2D Saturation/Value canvas, Hue spectrum rainbow bar, quick hues,
- * optional gradient mode, live swatch, and immediate Apply/Reset buttons.
- */
 export const ColorPicker = memo(function ColorPicker({
 	initialColor = '#5865F2',
 	onSelect,
@@ -68,6 +64,7 @@ export const ColorPicker = memo(function ColorPicker({
 	allowGradient = true,
 	onInteractionChange,
 }: ColorPickerProps) {
+	const themeTokens = useSharedThemeTokens()
 	const safeInitialColor =
 		typeof initialColor === 'string' && initialColor ? initialColor : '#5865F2'
 	const isInitialGradient =
@@ -155,7 +152,6 @@ export const ColorPicker = memo(function ColorPicker({
 		[gradientAngle, gradientStart, gradientEnd],
 	)
 
-	// Updates internal state only without closing parent modal
 	const updateColorFromHsv = useCallback(
 		(h: number, s: number, v: number) => {
 			const safeH = Math.round(Math.max(0, Math.min(360, h)))
@@ -360,7 +356,6 @@ export const ColorPicker = memo(function ColorPicker({
 
 	return (
 		<Stack spacing={14}>
-			{/* Gradient Mode Toggle & Direction Options */}
 			{allowGradient && (
 				<Card style={{ padding: 10 }}>
 					<View
@@ -371,7 +366,10 @@ export const ColorPicker = memo(function ColorPicker({
 							marginBottom: isGradientMode ? 8 : 0,
 						}}
 					>
-						<Text variant="text-xs/bold" color="header-secondary">
+						<Text
+							variant="text-xs/bold"
+							style={{ color: themeTokens.textMuted }}
+						>
 							{isGradientMode ? 'CSS GRADIENT' : 'SOLID COLOR'}
 						</Text>
 						<Button
@@ -394,7 +392,6 @@ export const ColorPicker = memo(function ColorPicker({
 
 					{isGradientMode && (
 						<Stack spacing={8}>
-							{/* Stop Selector: Start Color vs End Color */}
 							<View style={{ flexDirection: 'row', gap: 8 }}>
 								<View style={{ flex: 1 }}>
 									<Button
@@ -418,7 +415,6 @@ export const ColorPicker = memo(function ColorPicker({
 								</View>
 							</View>
 
-							{/* Gradient Angle Buttons */}
 							<View style={{ flexDirection: 'row', gap: 6 }}>
 								{GRADIENT_ANGLES.map(deg => (
 									<View key={deg} style={{ flex: 1 }}>
@@ -441,9 +437,7 @@ export const ColorPicker = memo(function ColorPicker({
 				</Card>
 			)}
 
-			{/* Interactive 2D Spectrum & Clean Rainbow Hue Bar Card */}
 			<Card style={{ padding: 12, alignItems: 'center' }}>
-				{/* 2D Saturation / Value Gradient Canvas */}
 				<View
 					ref={canvasRef}
 					onLayout={onCanvasLayout}
@@ -465,11 +459,10 @@ export const ColorPicker = memo(function ColorPicker({
 						backgroundColor: `hsl(${hue}, 100%, 50%)`,
 						position: 'relative',
 						borderWidth: 1,
-						borderColor: 'rgba(255, 255, 255, 0.2)',
+						borderColor: themeTokens.cardBorder,
 						marginBottom: 10,
 					}}
 				>
-					{/* Horizontal White-to-transparent Saturation overlay */}
 					<View
 						pointerEvents="none"
 						style={[
@@ -487,7 +480,6 @@ export const ColorPicker = memo(function ColorPicker({
 						]}
 					/>
 
-					{/* Vertical Transparent-to-black Value overlay */}
 					<View
 						pointerEvents="none"
 						style={[
@@ -505,7 +497,6 @@ export const ColorPicker = memo(function ColorPicker({
 						]}
 					/>
 
-					{/* Ring Indicator Thumb */}
 					<View
 						pointerEvents="none"
 						style={{
@@ -523,7 +514,6 @@ export const ColorPicker = memo(function ColorPicker({
 					/>
 				</View>
 
-				{/* Clean Hue Spectrum Bar */}
 				<View style={{ width: SLIDER_WIDTH, marginBottom: 12 }}>
 					<View
 						ref={hueSliderRef}
@@ -544,7 +534,7 @@ export const ColorPicker = memo(function ColorPicker({
 								height: 16,
 								borderRadius: 8,
 								borderWidth: 1,
-								borderColor: 'rgba(255, 255, 255, 0.2)',
+								borderColor: themeTokens.cardBorder,
 								position: 'relative',
 								justifyContent: 'center',
 							},
@@ -554,7 +544,6 @@ export const ColorPicker = memo(function ColorPicker({
 							},
 						]}
 					>
-						{/* Hue Thumb */}
 						<View
 							pointerEvents="none"
 							style={{
@@ -572,7 +561,6 @@ export const ColorPicker = memo(function ColorPicker({
 					</View>
 				</View>
 
-				{/* Quick Hue Presets */}
 				<View
 					style={{
 						flexDirection: 'row',
@@ -593,8 +581,8 @@ export const ColorPicker = memo(function ColorPicker({
 								borderWidth: Math.abs(hue - item.h) < 15 ? 2 : 1,
 								borderColor:
 									Math.abs(hue - item.h) < 15
-										? '#FFFFFF'
-										: 'rgba(0, 0, 0, 0.4)',
+										? themeTokens.interactiveActive
+										: themeTokens.cardBorder,
 								transform: [{ scale: pressed ? 0.9 : 1 }],
 							})}
 						/>
@@ -602,7 +590,6 @@ export const ColorPicker = memo(function ColorPicker({
 				</View>
 			</Card>
 
-			{/* Color Swatch & Custom Input Card */}
 			<Card style={{ padding: 12 }}>
 				<Stack spacing={8}>
 					<View
@@ -613,7 +600,7 @@ export const ColorPicker = memo(function ColorPicker({
 								justifyContent: 'center',
 								alignItems: 'center',
 								borderWidth: 1,
-								borderColor: 'rgba(255, 255, 255, 0.25)',
+								borderColor: themeTokens.cardBorder,
 							},
 							isGradientMode
 								? { experimental_backgroundImage: builtGradient }
@@ -626,7 +613,9 @@ export const ColorPicker = memo(function ColorPicker({
 								fontWeight: '700',
 								fontSize: 13,
 								textShadowColor: isGradientMode
-									? 'rgba(0, 0, 0, 0.75)'
+									? themeTokens.isDark
+										? 'rgba(0, 0, 0, 0.75)'
+										: 'rgba(0, 0, 0, 0.4)'
 									: undefined,
 								textShadowOffset: isGradientMode
 									? { width: 0, height: 1 }
@@ -635,7 +624,7 @@ export const ColorPicker = memo(function ColorPicker({
 							}}
 						>
 							{isGradientMode
-								? `${gradientStart} ➜ ${gradientEnd} (${gradientAngle}°)`
+								? `${gradientStart} → ${gradientEnd} (${gradientAngle}°)`
 								: currentHex}
 						</Text>
 					</View>
@@ -658,22 +647,37 @@ export const ColorPicker = memo(function ColorPicker({
 							paddingTop: 4,
 						}}
 					>
-						<Text variant="text-xs/normal" color="text-muted">
+						<Text
+							variant="text-xs/normal"
+							style={{ color: themeTokens.textMuted }}
+						>
 							RGB:{' '}
-							<Text style={{ color: '#FFFFFF', fontWeight: '600' }}>
+							<Text
+								style={{ color: themeTokens.textNormal, fontWeight: '600' }}
+							>
 								{currentRgb.r}, {currentRgb.g}, {currentRgb.b}
 							</Text>
 						</Text>
-						<Text variant="text-xs/normal" color="text-muted">
+						<Text
+							variant="text-xs/normal"
+							style={{ color: themeTokens.textMuted }}
+						>
 							HSV:{' '}
-							<Text style={{ color: '#FFFFFF', fontWeight: '600' }}>
+							<Text
+								style={{ color: themeTokens.textNormal, fontWeight: '600' }}
+							>
 								{hue}°, {Math.round(saturation * 100)}%,{' '}
 								{Math.round(value * 100)}%
 							</Text>
 						</Text>
-						<Text variant="text-xs/normal" color="text-muted">
+						<Text
+							variant="text-xs/normal"
+							style={{ color: themeTokens.textMuted }}
+						>
 							HSL:{' '}
-							<Text style={{ color: '#FFFFFF', fontWeight: '600' }}>
+							<Text
+								style={{ color: themeTokens.textNormal, fontWeight: '600' }}
+							>
 								{currentHsl.h}°, {currentHsl.s}%, {currentHsl.l}%
 							</Text>
 						</Text>
@@ -681,7 +685,6 @@ export const ColorPicker = memo(function ColorPicker({
 				</Stack>
 			</Card>
 
-			{/* Immediate Action Buttons: Apply and Reset */}
 			<View style={{ flexDirection: 'row', gap: 8, paddingBottom: 8 }}>
 				<View style={{ flex: 1 }}>
 					<Button

@@ -20,7 +20,7 @@ import {
 	searchDiscoverableGuilds,
 	selectGuild,
 } from '../api/discoveryApi'
-import { MODAL_KEY_DISCOVERY, MODAL_KEY_PREVIEW } from '../constants'
+import { MODAL_KEY_PREVIEW } from '../constants'
 import { DefaultSettings } from '../types'
 import { useThemeTokens } from '../utils/theme'
 import { showToast } from '../utils/toast'
@@ -33,20 +33,6 @@ import type {
 	DiscoverableGuildsResponse,
 	Settings,
 } from '../types'
-
-function extractInputText(val: unknown): string {
-	if (typeof val === 'string') return val
-	if (val && typeof val === 'object') {
-		const obj = val as Record<string, unknown>
-		if (typeof obj.text === 'string') return obj.text
-		if (typeof obj.value === 'string') return obj.value
-		if (obj.nativeEvent && typeof obj.nativeEvent === 'object') {
-			const ne = obj.nativeEvent as Record<string, unknown>
-			if (typeof ne.text === 'string') return ne.text
-		}
-	}
-	return ''
-}
 
 interface ServerPreviewSheetProps {
 	guild: DiscoverableGuild
@@ -117,13 +103,13 @@ export function ServerDiscoveryView({
 				if (query.trim().length > 0) {
 					result = await searchDiscoverableGuilds({
 						query: query.trim(),
-						categoryId: categoryId > 0 ? categoryId : undefined,
+						categoryId: categoryId >= 0 ? categoryId : undefined,
 						offset: targetOffset,
 						limit,
 					})
 				} else {
 					result = await fetchDiscoverableGuilds({
-						categoryId: categoryId > 0 ? categoryId : undefined,
+						categoryId: categoryId >= 0 ? categoryId : undefined,
 						offset: targetOffset,
 						limit,
 					})
@@ -180,93 +166,81 @@ export function ServerDiscoveryView({
 				clearTimeout(searchTimeoutRef.current)
 			}
 		}
-	}, [loadGuilds, selectedCategoryId])
+	}, [selectedCategoryId, loadGuilds])
+
+	const handleCategorySelect = (catId: number) => {
+		if (catId === selectedCategoryId) return
+		Vibration.vibrate(30)
+		setSelectedCategoryId(catId)
+		setSearchQuery('')
+	}
 
 	const handleQueryChange = (val: unknown) => {
-		const text = extractInputText(val)
+		const text = typeof val === 'string' ? val : ''
 		setSearchQuery(text)
 		if (searchTimeoutRef.current) {
 			clearTimeout(searchTimeoutRef.current)
 		}
 		searchTimeoutRef.current = setTimeout(() => {
-			if (isMountedRef.current) {
-				void loadGuilds(text, selectedCategoryIdRef.current, 0, false)
-			}
+			if (!isMountedRef.current) return
+			void loadGuilds(text, selectedCategoryIdRef.current, 0, false)
 		}, 350)
-	}
-
-	const handleCategorySelect = (categoryId: number) => {
-		if (searchTimeoutRef.current) {
-			clearTimeout(searchTimeoutRef.current)
-		}
-		setSelectedCategoryId(categoryId)
-		selectedCategoryIdRef.current = categoryId
-		void loadGuilds(searchQuery, categoryId, 0, false)
 	}
 
 	const handleLoadMore = () => {
 		if (loading || loadingMore || !hasMorePages) return
 		const nextOffset = offset + limit
-		void loadGuilds(searchQuery, selectedCategoryId, nextOffset, true)
+		void loadGuilds(
+			searchQuery,
+			selectedCategoryIdRef.current,
+			nextOffset,
+			true,
+		)
 	}
 
 	const handleJoin = async (guild: DiscoverableGuild) => {
+		if (joiningId) return
 		setJoiningId(guild.id)
 		try {
-			await joinGuild(guild.id)
 			Vibration.vibrate(50)
+			await joinGuild(guild.id)
 			setJoinedSet(prev => new Set(prev).add(guild.id))
 			showToast(`Joined ${guild.name}!`)
 			selectGuild(guild.id)
-			try {
-				ActionSheetActionCreators.hideActionSheet(MODAL_KEY_PREVIEW)
-			} catch {}
-			if (onClose) {
-				onClose()
-			} else {
-				try {
-					ActionSheetActionCreators.hideActionSheet(MODAL_KEY_DISCOVERY)
-				} catch {}
-			}
+			onClose?.()
 		} catch (err: unknown) {
 			const message = (err as Error)?.message ?? 'Failed to join server'
 			showToast(message)
 		} finally {
-			if (isMountedRef.current) {
-				setJoiningId(null)
-			}
+			setJoiningId(null)
 		}
 	}
 
 	const handleView = (guild: DiscoverableGuild) => {
+		Vibration.vibrate(30)
 		selectGuild(guild.id)
-		try {
-			ActionSheetActionCreators.hideActionSheet(MODAL_KEY_PREVIEW)
-		} catch {}
-		if (onClose) {
-			onClose()
-		} else {
-			try {
-				ActionSheetActionCreators.hideActionSheet(MODAL_KEY_DISCOVERY)
-			} catch {}
-		}
+		onClose?.()
 	}
 
 	const handlePreview = (guild: DiscoverableGuild) => {
+		Vibration.vibrate(30)
 		ActionSheetActionCreators.openLazy(
 			Promise.resolve({
-				default: ServerPreviewSheet,
+				default: () => (
+					<ServerPreviewSheet
+						guild={guild}
+						isJoined={joinedSet.has(guild.id)}
+						isJoining={joiningId === guild.id}
+						onJoin={handleJoin}
+						onView={handleView}
+						onClose={() =>
+							ActionSheetActionCreators.hideActionSheet(MODAL_KEY_PREVIEW)
+						}
+					/>
+				),
 			}),
 			MODAL_KEY_PREVIEW,
-			{
-				guild,
-				isJoined: joinedSet.has(guild.id),
-				isJoining: joiningId === guild.id,
-				onJoin: handleJoin,
-				onView: handleView,
-				onClose: () =>
-					ActionSheetActionCreators.hideActionSheet(MODAL_KEY_PREVIEW),
-			},
+			{},
 			'stack',
 		)
 	}

@@ -6,6 +6,7 @@ import { Stores } from '@valenced/discord/flux'
 import { lookupGeneratedIconComponent } from '@valenced/utils/discord'
 import { useState } from 'react'
 import { Image, ScrollView, View } from 'react-native'
+import { useSharedThemeTokens } from '../../../shared/theme'
 import {
 	BRAND_COLOR,
 	extractBaseColor,
@@ -43,6 +44,8 @@ export default function SettingsComponent({ api }: SettingsProps) {
 	const EmojiPicker = hieuxyz?.EmojiPicker
 
 	const settings = storage.use()
+	const themeTokens = useSharedThemeTokens()
+	const iconTintColor = themeTokens.interactiveNormal
 	const [selectedTag, setSelectedTag] = useState<string>('OWNER')
 	const [isTagModalOpen, setIsTagModalOpen] = useState(false)
 	const [isColorModalOpen, setIsColorModalOpen] = useState(false)
@@ -144,9 +147,7 @@ export default function SettingsComponent({ api }: SettingsProps) {
 				previewRoleColor = extractMemberRoleColor(currentGuildId, currentUserId)
 			}
 		}
-	} catch {
-		// safe fallback
-	}
+	} catch {}
 
 	const effectiveColor = currentCustomConfig?.color?.trim()
 		? currentCustomConfig.color.trim()
@@ -169,9 +170,7 @@ export default function SettingsComponent({ api }: SettingsProps) {
 			ActiveIconComp = lookupGeneratedIconComponent(activeIcon) as
 				| React.ComponentType<Record<string, unknown>>
 				| undefined
-		} catch {
-			// fallback
-		}
+		} catch {}
 	}
 	const activeIconAssetId = activeIcon
 		? getAssetIdByName(activeIcon)
@@ -186,7 +185,6 @@ export default function SettingsComponent({ api }: SettingsProps) {
 				showsVerticalScrollIndicator={true}
 			>
 				<Stack spacing={16}>
-					{/* General Settings */}
 					<TableRowGroup title="General Settings">
 						<TableSwitchRow
 							label="Use top role color for tag backgrounds"
@@ -204,21 +202,22 @@ export default function SettingsComponent({ api }: SettingsProps) {
 						/>
 					</TableRowGroup>
 
-					{/* Tag Selector: Native TableRow that opens Tag selection sheet */}
 					<TableRowGroup title="Tag Selection">
 						<TableRow
 							label="Tag to Configure"
 							subLabel={`Currently selected: ${selectedTag}${currentCustomConfig ? ' • Customized' : ''}`}
 							trailing={
-								<Text variant="text-md/bold" color="text-brand">
-									{selectedTag} ▾
+								<Text
+									variant="text-md/bold"
+									style={{ color: themeTokens.brand }}
+								>
+									{selectedTag}
 								</Text>
 							}
 							onPress={() => setIsTagModalOpen(true)}
 						/>
 					</TableRowGroup>
 
-					{/* Tag Live Preview Card */}
 					<TableRowGroup title="Preview">
 						<Card style={{ padding: 12 }}>
 							<View
@@ -228,11 +227,17 @@ export default function SettingsComponent({ api }: SettingsProps) {
 									justifyContent: 'space-between',
 								}}
 							>
-								<Text variant="text-xs/bold" color="text-muted">
+								<Text
+									variant="text-xs/bold"
+									style={{ color: themeTokens.textMuted }}
+								>
 									CHAT PREVIEW
 								</Text>
 								{currentCustomConfig?.color ? (
-									<Text variant="text-xs/medium" color="text-warning">
+									<Text
+										variant="text-xs/medium"
+										style={{ color: themeTokens.brand }}
+									>
 										Custom color active
 									</Text>
 								) : null}
@@ -244,7 +249,6 @@ export default function SettingsComponent({ api }: SettingsProps) {
 									alignItems: 'center',
 								}}
 							>
-								{/* Current User Avatar */}
 								{previewAvatarUri ? (
 									<Image
 										source={{ uri: previewAvatarUri }}
@@ -253,7 +257,7 @@ export default function SettingsComponent({ api }: SettingsProps) {
 											height: 36,
 											borderRadius: 18,
 											marginRight: 10,
-											backgroundColor: 'rgba(255, 255, 255, 0.1)',
+											backgroundColor: themeTokens.bgModifierAccent,
 										}}
 									/>
 								) : (
@@ -263,12 +267,15 @@ export default function SettingsComponent({ api }: SettingsProps) {
 											height: 36,
 											borderRadius: 18,
 											marginRight: 10,
-											backgroundColor: '#5865F2',
+											backgroundColor: themeTokens.brand,
 											justifyContent: 'center',
 											alignItems: 'center',
 										}}
 									>
-										<Text variant="text-sm/bold" style={{ color: '#FFFFFF' }}>
+										<Text
+											variant="text-sm/bold"
+											style={{ color: themeTokens.textHeader }}
+										>
 											{previewUserName.charAt(0).toUpperCase()}
 										</Text>
 									</View>
@@ -277,8 +284,10 @@ export default function SettingsComponent({ api }: SettingsProps) {
 								<View style={{ flexDirection: 'row', alignItems: 'center' }}>
 									<Text
 										variant="text-md/bold"
-										color="header-primary"
-										style={{ marginRight: 8 }}
+										style={{
+											color: themeTokens.textHeader,
+											marginRight: 8,
+										}}
 									>
 										{previewUserName}
 									</Text>
@@ -344,7 +353,6 @@ export default function SettingsComponent({ api }: SettingsProps) {
 						</Card>
 					</TableRowGroup>
 
-					{/* Tag Customization Controls: All Native TableRow & TextInput */}
 					<TableRowGroup title={`Tag Customization (${selectedTag})`}>
 						<View
 							style={{
@@ -375,7 +383,6 @@ export default function SettingsComponent({ api }: SettingsProps) {
 							) : null}
 						</View>
 
-						{/* Icon Row */}
 						<TableRow
 							label="Tag Icon / Emoji"
 							subLabel={activeIcon || 'Default icon'}
@@ -383,7 +390,7 @@ export default function SettingsComponent({ api }: SettingsProps) {
 								ActiveIconComp ? (
 									<ActiveIconComp
 										size="sm"
-										color="#FFFFFF"
+										color={iconTintColor}
 										style={{ width: 22, height: 22 }}
 									/>
 								) : activeIconAssetId !== undefined ? (
@@ -392,11 +399,13 @@ export default function SettingsComponent({ api }: SettingsProps) {
 										style={{
 											width: 22,
 											height: 22,
-											tintColor: '#FFFFFF',
+											tintColor: iconTintColor,
 										}}
 									/>
 								) : activeIcon ? (
-									<Text style={{ fontSize: 20 }}>{activeIcon}</Text>
+									<Text style={{ fontSize: 20, color: themeTokens.textNormal }}>
+										{activeIcon}
+									</Text>
 								) : (
 									<TableRowAssetIcon name="ReactionIcon" />
 								)
@@ -418,7 +427,6 @@ export default function SettingsComponent({ api }: SettingsProps) {
 							onPress={() => setIsIconModalOpen(true)}
 						/>
 
-						{/* Color Row */}
 						<TableRow
 							label="Tag Color"
 							subLabel={currentCustomConfig?.color || 'Default brand color'}
@@ -430,7 +438,7 @@ export default function SettingsComponent({ api }: SettingsProps) {
 										borderRadius: 12,
 										backgroundColor: baseColor,
 										borderWidth: 2,
-										borderColor: 'rgba(255, 255, 255, 0.4)',
+										borderColor: themeTokens.cardBorder,
 										...(isGradient
 											? { experimental_backgroundImage: effectiveColor }
 											: {}),
@@ -455,7 +463,6 @@ export default function SettingsComponent({ api }: SettingsProps) {
 						/>
 					</TableRowGroup>
 
-					{/* Reset All for Selected Tag */}
 					{currentCustomConfig &&
 					Object.keys(currentCustomConfig).length > 0 ? (
 						<View style={{ paddingHorizontal: 16 }}>
@@ -470,7 +477,6 @@ export default function SettingsComponent({ api }: SettingsProps) {
 				</Stack>
 			</ScrollView>
 
-			{/* Tag Picker Bottom Sheet */}
 			{PipModal ? (
 				<PipModal
 					visible={isTagModalOpen}
@@ -510,7 +516,6 @@ export default function SettingsComponent({ api }: SettingsProps) {
 				</PipModal>
 			) : null}
 
-			{/* Dedicated Color Picker Modal */}
 			{ColorPickerModal ? (
 				<ColorPickerModal
 					visible={isColorModalOpen}
@@ -530,7 +535,6 @@ export default function SettingsComponent({ api }: SettingsProps) {
 				/>
 			) : null}
 
-			{/* Icon & Emoji Selection Modal */}
 			{PipModal && EmojiPicker ? (
 				<PipModal
 					visible={isIconModalOpen}

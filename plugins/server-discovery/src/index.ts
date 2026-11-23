@@ -5,6 +5,7 @@ import { patchSettingsDiscovery } from './patches/settingsPatch'
 import SettingsComponent from './settings'
 import { initGuildChangeListener } from './state/discoveryState'
 import { DefaultSettings } from './types'
+import { resetThemeOverrides, setThemeOverrides } from './utils/theme'
 import type { Settings } from './types'
 
 export default plugin<{ jsonStorage: Settings }>({
@@ -15,11 +16,27 @@ export default plugin<{ jsonStorage: Settings }>({
 	start({ cleanup, jsonStorage, plugin }) {
 		if (plugin.startedLate) {
 			plugin.requireReload()
-			return
+		}
+
+		if (jsonStorage.cache?.themeOverrides) {
+			setThemeOverrides(jsonStorage.cache.themeOverrides)
+		}
+		if (typeof jsonStorage.subscribe === 'function') {
+			cleanup(
+				jsonStorage.subscribe(newSettings => {
+					setThemeOverrides(newSettings.themeOverrides)
+				}),
+			)
 		}
 
 		try {
 			void fetchDiscoveryCategories()
+		} catch (err) {
+			plugin.reportError(err)
+		}
+
+		try {
+			initGuildChangeListener(cleanup)
 		} catch (err) {
 			plugin.reportError(err)
 		}
@@ -41,14 +58,9 @@ export default plugin<{ jsonStorage: Settings }>({
 		} catch (err) {
 			plugin.reportError(err)
 		}
-
-		try {
-			initGuildChangeListener(cleanup)
-		} catch (err) {
-			plugin.reportError(err)
-		}
 	},
 	stop({ plugin }) {
+		resetThemeOverrides()
 		plugin.requireReload()
 	},
 	SettingsComponent,

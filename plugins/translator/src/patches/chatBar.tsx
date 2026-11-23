@@ -9,6 +9,7 @@ import { after } from '@valenced/patcher'
 import { lookupGeneratedIconComponent } from '@valenced/utils/discord'
 import { createElement, useEffect, useRef, useState } from 'react'
 import { Pressable, View } from 'react-native'
+import { useSharedThemeTokens } from '../../../../shared/theme'
 
 const { Text } = Design
 
@@ -344,6 +345,7 @@ export function TranslatorChatBarButton({
 	storage: JsonStorage<Settings>
 	showToast?: (msg: string) => void
 }): ReactElement | null {
+	const themeTokens = useSharedThemeTokens()
 	const settings: Settings = {
 		...DefaultSettings,
 		...(storage.use() as Partial<Settings> | undefined),
@@ -415,16 +417,20 @@ export function TranslatorChatBarButton({
 			>
 				{isEnabled ? (
 					LanguageIcon ? (
-						<LanguageIcon size="md" color="#5865F2" />
+						<LanguageIcon size="md" color={themeTokens.brand} />
 					) : (
 						<SlashedTranslateSvg
 							size={24}
-							color="#5865F2"
+							color={themeTokens.brand}
 							slashColor="transparent"
 						/>
 					)
 				) : (
-					<SlashedTranslateSvg size={24} color="#949BA4" slashColor="#ED4245" />
+					<SlashedTranslateSvg
+						size={24}
+						color={themeTokens.interactiveNormal}
+						slashColor={themeTokens.textDanger}
+					/>
 				)}
 			</Pressable>
 

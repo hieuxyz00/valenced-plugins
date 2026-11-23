@@ -12,6 +12,6 @@
 		"tsBuildInfoFile": "${configDir}/build/tsconfig.tsbuildinfo",
 		"types": ["@valenced/types"]
 	},
-	"include": ["${configDir}/**/*", "types"],
+	"include": ["${configDir}/**/*", "types", "../../shared/**/*"],
 	"exclude": ["${configDir}/build", "${configDir}/node_modules"]
 }

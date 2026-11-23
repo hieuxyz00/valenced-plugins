@@ -91,7 +91,7 @@ export async function fetchDiscoverableGuilds(options: {
 		offset: options.offset ?? 0,
 	}
 
-	if (options.categoryId !== undefined && options.categoryId > 0) {
+	if (options.categoryId !== undefined && options.categoryId >= 0) {
 		query.categories = [options.categoryId]
 	}
 
@@ -128,8 +128,8 @@ export async function searchDiscoverableGuilds(options: {
 		offset: options.offset ?? 0,
 	}
 
-	if (options.categoryId !== undefined && options.categoryId > 0) {
-		queryParams.category_id = options.categoryId
+	if (options.categoryId !== undefined && options.categoryId >= 0) {
+		queryParams.categories = [options.categoryId]
 	}
 
 	const response = await http.HTTP.get({
@@ -168,7 +168,9 @@ export async function fetchDiscoveryCategories(): Promise<DiscoveryCategory[]> {
 				const nonPrimary = raw.filter(c => !c.is_primary)
 				const sortedPrimary = [
 					...primary.filter(c => c.id === 0),
-					...primary.filter(c => c.id !== 0).sort((a, b) => a.id - b.id),
+					...primary
+						.filter(c => c.id !== 0)
+						.sort((a, b) => Number(a.id) - Number(b.id)),
 				]
 				const sortedNonPrimary = [...nonPrimary].sort((a, b) =>
 					a.name.localeCompare(b.name),

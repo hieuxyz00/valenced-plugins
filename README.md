@@ -16,6 +16,7 @@ https://hieuxyz00.github.io/valenced-plugins/index.json
 
 | Plugin | ID | Description |
 |---|---|---|
+| **Expand Replies** | `hieuxyz.expand-replies` | Expand truncated message references and replies in chat to show full content. |
 | **Export Messages** | `hieuxyz.export-messages` | Export Discord messages and channel history to HTML, JSON, or text. |
 | **Hieuxyz Lib** | `hieuxyz.lib` | Shared component library and utilities for hieuxyz plugins. |
 | **No Reply Mention** | `hieuxyz.no-reply-mention` | Automatically disable mention when replying to messages. |

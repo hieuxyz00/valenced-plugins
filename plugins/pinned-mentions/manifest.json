@@ -4,7 +4,7 @@
 	"name": "Pinned Mentions",
 	"description": "Pin frequently pinged users to the top of mention autocomplete suggestions per server or globally.",
 	"author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"icon": "PinIcon",
 	"dependencies": {
 		"valenced.api": {

@@ -5,6 +5,7 @@ import { Design } from '@valenced/discord/design'
 import { Stores } from '@valenced/discord/flux'
 import { useState } from 'react'
 import { Image, ScrollView, View } from 'react-native'
+import { useSharedThemeTokens } from '../../../shared/theme'
 import { DefaultSettings } from './types'
 import {
 	addPinnedUsers,
@@ -54,6 +55,7 @@ export default function SettingsComponent({ api }: SettingsProps) {
 
 	const storage = api.jsonStorage
 	const cached = storage.use()
+	const themeTokens = useSharedThemeTokens()
 	const settings = {
 		...DefaultSettings,
 		...(cached as Partial<Settings> | undefined),
@@ -319,7 +321,10 @@ export default function SettingsComponent({ api }: SettingsProps) {
 						<View
 							style={{ paddingHorizontal: 16, paddingVertical: 12, gap: 10 }}
 						>
-							<Text variant="text-sm/normal" color="text-muted">
+							<Text
+								variant="text-sm/normal"
+								style={{ color: themeTokens.textMuted }}
+							>
 								Paste one or more Discord user IDs to pin them to{' '}
 								{currentScopeName}. Separate multiple IDs with commas or spaces.
 							</Text>

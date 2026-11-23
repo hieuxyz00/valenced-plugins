@@ -1,0 +1,24 @@
+{
+	"format": 1,
+	"id": "hieuxyz.expand-replies",
+	"name": "Expand Replies",
+	"description": "Expand truncated message references and replies in chat to show full content.",
+	"author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
+	"version": "1.0.0",
+	"icon": "ChatDotsIcon",
+	"dependencies": {
+		"valenced.api": {
+			"version": ">=1 <2"
+		},
+		"discord": {
+			"version": "*"
+		}
+	},
+	"dist": {
+		"script": "index.js",
+		"android": {
+			"path": "plugin.jar",
+			"class": "hieuxyz.expandreplies.ExpandReplies"
+		}
+	}
+}

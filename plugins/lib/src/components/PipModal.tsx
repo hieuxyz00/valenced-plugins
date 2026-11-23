@@ -5,11 +5,13 @@ import {
 	Dimensions,
 	Easing,
 	Modal,
+	Text as NativeText,
 	PanResponder,
 	Pressable,
 	ScrollView,
 	View,
 } from 'react-native'
+import { useSharedThemeTokens } from '../../../../shared/theme'
 import type { ReactNode } from 'react'
 import type {
 	DimensionValue,
@@ -17,7 +19,7 @@ import type {
 	NativeSyntheticEvent,
 } from 'react-native'
 
-const { Button, Text } = Design
+const { Button } = Design
 const AnimatedView = Animated.View
 
 export interface PipModalProps {
@@ -53,6 +55,7 @@ export function PipModal({
 	scrollEnabled = true,
 	onScroll,
 }: PipModalProps) {
+	const themeTokens = useSharedThemeTokens()
 	const windowHeight = Dimensions.get('window').height || 900
 	const panY = useRef(new Animated.Value(windowHeight)).current
 	const onCloseRef = useRef(onClose)
@@ -178,13 +181,13 @@ export function PipModal({
 						maxWidth,
 						height,
 						maxHeight: maxComputedHeight,
-						backgroundColor: '#1E1F22',
+						backgroundColor: themeTokens.bgFloating,
 						borderTopLeftRadius: 16,
 						borderTopRightRadius: 16,
 						overflow: 'hidden',
 						elevation: 16,
 						shadowColor: '#000000',
-						shadowOpacity: 0.6,
+						shadowOpacity: themeTokens.isDark ? 0.6 : 0.2,
 						shadowRadius: 16,
 						shadowOffset: { width: 0, height: -4 },
 						transform: [{ translateY: panY }],
@@ -206,7 +209,8 @@ export function PipModal({
 								width: 36,
 								height: 4,
 								borderRadius: 2,
-								backgroundColor: 'rgba(255, 255, 255, 0.35)',
+								backgroundColor: themeTokens.interactiveNormal,
+								opacity: 0.4,
 							}}
 						/>
 					</View>
@@ -219,7 +223,7 @@ export function PipModal({
 							paddingHorizontal: 16,
 							paddingBottom: 10,
 							borderBottomWidth: 1,
-							borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+							borderBottomColor: themeTokens.cardBorder,
 						}}
 					>
 						<View
@@ -228,23 +232,28 @@ export function PipModal({
 							style={{ flex: 1, paddingRight: 8 }}
 						>
 							{title ? (
-								<Text
-									variant="heading-sm/bold"
-									color="header-primary"
+								<NativeText
 									numberOfLines={1}
+									style={{
+										color: themeTokens.textHeader,
+										fontSize: 16,
+										fontWeight: '700',
+									}}
 								>
 									{title}
-								</Text>
+								</NativeText>
 							) : null}
 							{subtitle ? (
-								<Text
-									variant="text-xs/normal"
-									color="text-muted"
-									style={{ marginTop: 2 }}
+								<NativeText
 									numberOfLines={1}
+									style={{
+										marginTop: 2,
+										color: themeTokens.textMuted,
+										fontSize: 12,
+									}}
 								>
 									{subtitle}
-								</Text>
+								</NativeText>
 							) : null}
 						</View>
 
@@ -262,7 +271,7 @@ export function PipModal({
 								paddingHorizontal: 16,
 								paddingVertical: 10,
 								borderBottomWidth: 1,
-								borderBottomColor: 'rgba(255, 255, 255, 0.06)',
+								borderBottomColor: themeTokens.cardBorder,
 							}}
 						>
 							{fixedHeader}
@@ -296,8 +305,8 @@ export function PipModal({
 								paddingHorizontal: 16,
 								paddingVertical: 12,
 								borderTopWidth: 1,
-								borderTopColor: 'rgba(255, 255, 255, 0.08)',
-								backgroundColor: '#2B2D31',
+								borderTopColor: themeTokens.cardBorder,
+								backgroundColor: themeTokens.bgFloating,
 							}}
 						>
 							{actions}

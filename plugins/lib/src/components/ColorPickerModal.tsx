@@ -15,11 +15,6 @@ export interface ColorPickerModalProps {
 	allowGradient?: boolean
 }
 
-/**
- * Native Discord Color Picker Modal.
- * Opens as a bottom sheet with 2D spectrum, Hue slider, presets, and live preview.
- * Locks outer scroll during color interaction to prevent dragging the modal.
- */
 export function ColorPickerModal({
 	visible,
 	onClose,

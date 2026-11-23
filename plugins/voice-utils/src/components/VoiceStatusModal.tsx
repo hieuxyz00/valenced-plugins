@@ -7,6 +7,7 @@ import { withProps } from '@valenced/modules/finders/filters'
 import { lookupGeneratedIconComponent } from '@valenced/utils/discord'
 import { useEffect, useState } from 'react'
 import { Pressable, View } from 'react-native'
+import { useSharedThemeTokens } from '../../../../shared/theme'
 import { ModalKeys, UNICODE_EMOJIS_IMPORTED_PATH } from '../constants'
 import {
 	cleanupEmojiPickerPatch,
@@ -176,6 +177,7 @@ function VoiceStatusSheetContent({
 	initialStatus = '',
 }: VoiceStatusModalProps) {
 	const { ActionSheet, Button, Text, TextInput } = Design
+	const themeTokens = useSharedThemeTokens()
 	const ChatSmileIcon = getChatSmileIcon()
 
 	const currentDraftText =
@@ -333,10 +335,16 @@ function VoiceStatusSheetContent({
 		>
 			<View style={{ paddingHorizontal: 16, paddingBottom: 20, paddingTop: 8 }}>
 				<View style={{ marginBottom: 12 }}>
-					<Text variant="heading-lg/semibold" style={{ marginBottom: 4 }}>
+					<Text
+						variant="heading-lg/semibold"
+						style={{ marginBottom: 4, color: themeTokens.textHeader }}
+					>
 						Voice Channel Status
 					</Text>
-					<Text variant="text-sm/normal" color="text-muted">
+					<Text
+						variant="text-sm/normal"
+						style={{ color: themeTokens.textMuted }}
+					>
 						Update status for #{channel.name ?? 'voice-channel'}
 					</Text>
 				</View>
@@ -404,13 +412,16 @@ function VoiceStatusSheetContent({
 									padding: 12,
 									borderRadius: 12,
 									backgroundColor: pressed
-										? 'rgba(255, 255, 255, 0.15)'
-										: 'rgba(0, 0, 0, 0.15)',
+										? themeTokens.bgModifierHover
+										: themeTokens.bgModifierAccent,
 									alignItems: 'center',
 									justifyContent: 'center',
 								})}
 							>
-								<Text variant="text-sm/normal" color="text-muted">
+								<Text
+									variant="text-sm/normal"
+									style={{ color: themeTokens.textMuted }}
+								>
 									Browse Discord Emoji Picker
 								</Text>
 							</Pressable>
