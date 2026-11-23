@@ -99,6 +99,8 @@ export function ServerDiscoveryTab({ storage }: ServerDiscoveryTabProps) {
 
 const styles = StyleSheet.create({
 	tabContainer: {
+		width: '100%',
+		height: '100%',
 		flex: 1,
 		backgroundColor: '#313338',
 	},
