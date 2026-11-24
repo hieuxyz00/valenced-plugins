@@ -3,6 +3,30 @@
   "name": "hieuxyz's Plugins",
   "description": "Custom plugins for Valenced Discord by hieuxyz.",
   "plugins": {
+    "hieuxyz.expand-replies": {
+      "name": "Expand Replies",
+      "description": "Expand truncated message references and replies in chat to show full content.",
+      "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
+      "icon": "ChatDotsIcon",
+      "channels": {
+        "latest": "1.0.0"
+      },
+      "versions": {
+        "1.0.0": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.expand-replies@1.0.0.zip",
+          "sha256": "2e9f362a94ed770b0b9011b6ccbf24b63e47eab5993473bd6ca5e1abc4b3e1a7",
+          "size": 13137,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            }
+          }
+        }
+      }
+    },
     "hieuxyz.export-messages": {
       "name": "Export Messages",
       "description": "Export Discord messages and channel history to HTML, JSON, or Text.",
@@ -71,7 +95,7 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "WrenchIcon",
       "channels": {
-        "latest": "1.0.4"
+        "latest": "1.0.5"
       },
       "versions": {
         "1.0.0": {
@@ -130,6 +154,19 @@
           "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.lib@1.0.4.zip",
           "sha256": "33f3fa704957014c0eb27a55171c80683ff4563ab109d7ad3081ba814f3c63ad",
           "size": 18893,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            }
+          }
+        },
+        "1.0.5": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.lib@1.0.5.zip",
+          "sha256": "ce7a5771e68b9cedd023735f0ab76eee3dca1170f9b8ad536b51580160539526",
+          "size": 19958,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
@@ -197,13 +234,30 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "PinIcon",
       "channels": {
-        "latest": "1.0.0"
+        "latest": "1.0.1"
       },
       "versions": {
         "1.0.0": {
           "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.pinned-mentions@1.0.0.zip",
           "sha256": "6c43ee1124c3957ea2a6fd2a99caf742210f20d2d576de24c9b28ced10aba983",
           "size": 8067,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "rosie.toast-api": {
+              "version": ">=1.1.1 <2",
+              "optional": true
+            }
+          }
+        },
+        "1.0.1": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.pinned-mentions@1.0.1.zip",
+          "sha256": "eccda1182620ec1e6c369f0f760e1d3442015fddd9b004d140380b7dead4a4f9",
+          "size": 9159,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
@@ -225,7 +279,7 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "CompassIcon",
       "channels": {
-        "latest": "1.0.2"
+        "latest": "1.0.3"
       },
       "versions": {
         "1.0.0": {
@@ -282,6 +336,27 @@
               "optional": true
             }
           }
+        },
+        "1.0.3": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.server-discovery@1.0.3.zip",
+          "sha256": "0c52295c2ad5389f9ae04d4bc080fdcd426bd6a0f0448d81594d31eebf1e5478",
+          "size": 14640,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "valenced.api.themes": {
+              "version": "*",
+              "optional": true
+            },
+            "rosie.toast-api": {
+              "version": ">=1.1.1 <2",
+              "optional": true
+            }
+          }
         }
       }
     },
@@ -291,7 +366,7 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "ShieldUserIcon",
       "channels": {
-        "latest": "1.0.3"
+        "latest": "1.0.4"
       },
       "versions": {
         "1.0.0": {
@@ -357,6 +432,22 @@
               "version": ">=1 <2"
             }
           }
+        },
+        "1.0.4": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.staff-tags@1.0.4.zip",
+          "sha256": "df00895ed965ba08a034d6ede66cecd6fe12cbadfddc1fbc2080a8b074e51d26",
+          "size": 29550,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "hieuxyz.lib": {
+              "version": ">=1 <2"
+            }
+          }
         }
       }
     },
@@ -366,7 +457,7 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "TranslateIcon",
       "channels": {
-        "latest": "1.0.2"
+        "latest": "1.0.3"
       },
       "versions": {
         "1.0.0": {
@@ -416,6 +507,22 @@
               "version": ">=1 <2"
             }
           }
+        },
+        "1.0.3": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.translator@1.0.3.zip",
+          "sha256": "d52951db5b6340c760c797733bbd38be1c1fe572dc2b4704e41561b70ced4e81",
+          "size": 11515,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "hieuxyz.lib": {
+              "version": ">=1 <2"
+            }
+          }
         }
       }
     },
@@ -425,7 +532,7 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "VoiceNormalIcon",
       "channels": {
-        "latest": "1.0.1"
+        "latest": "1.0.2"
       },
       "versions": {
         "1.0.0": {
@@ -448,6 +555,26 @@
           "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.voice-utils@1.0.1.zip",
           "sha256": "4cfb590add9d72c7d4f16df790baf63c92ec0025a1c64fdc60e02a4869b08229",
           "size": 8960,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "hieuxyz.lib": {
+              "version": ">=1.0.4 <2"
+            },
+            "rosie.toast-api": {
+              "version": ">=1.1.1 <2",
+              "optional": true
+            }
+          }
+        },
+        "1.0.2": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.voice-utils@1.0.2.zip",
+          "sha256": "aa6c252ce5b3713e2acfc039a2781dab11d4ba413338b0934d6fb53b75629dcb",
+          "size": 10000,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
