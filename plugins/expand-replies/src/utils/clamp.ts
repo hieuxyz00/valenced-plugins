@@ -46,6 +46,14 @@ export function normalizeBlockNodes(nodes: ContentNode[]): ContentNode[] {
 		const node = nodes[i]
 		if (!node) continue
 
+		if (node.type === 'customEmoji' || node.type === 'emoji') {
+			result.push({
+				...node,
+				jumboable: false,
+			})
+			continue
+		}
+
 		if (node.type === 'list' && Array.isArray(node.items)) {
 			const isOrdered = Boolean(node.ordered)
 			const startNum = typeof node.start === 'number' ? node.start : 1

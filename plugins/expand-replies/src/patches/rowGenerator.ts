@@ -199,7 +199,7 @@ export function patchRowGenerator(
 								const parsed = markupModule.parseMessageMarkup(
 									fake,
 									fake,
-									true,
+									false,
 									!preserveNewlines,
 									false,
 									true,
