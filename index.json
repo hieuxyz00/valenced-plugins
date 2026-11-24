@@ -9,13 +9,26 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "ChatDotsIcon",
       "channels": {
-        "latest": "1.0.0"
+        "latest": "1.0.1"
       },
       "versions": {
         "1.0.0": {
           "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.expand-replies@1.0.0.zip",
           "sha256": "2e9f362a94ed770b0b9011b6ccbf24b63e47eab5993473bd6ca5e1abc4b3e1a7",
           "size": 13137,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            }
+          }
+        },
+        "1.0.1": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.expand-replies@1.0.1.zip",
+          "sha256": "923ffb1241229df0ca4399a9f8f5145533ac42a3e4eb9f5bc847a4bf62dcec6b",
+          "size": 13171,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
