@@ -14,7 +14,6 @@ import {
 	EmojiIntention,
 	formatEmoji,
 	getHieuxyzLib,
-	isGuildOrUnicodeEmoji,
 	openDiscordEmojiPicker,
 } from '../utils/discordEmojiPicker'
 import { showToast } from '../utils/toast'
@@ -249,13 +248,6 @@ function VoiceStatusSheetContent({
 
 	const handleOpenDiscordEmojiPicker = () => {
 		const handleSelectEmoji = (emoji: unknown) => {
-			if (!isGuildOrUnicodeEmoji(emoji, guildId)) {
-				showToast(
-					'Only current server and default emojis are supported',
-					'voice-status-guild-only',
-				)
-				return
-			}
 			const formatted = formatEmoji(emoji)
 			if (formatted) {
 				handleInsertEmoji(formatted)
@@ -268,13 +260,6 @@ function VoiceStatusSheetContent({
 			pickerIntention: EmojiIntention.VOICE_CHANNEL_TOPIC,
 			emojiPickerIntention: EmojiIntention.VOICE_CHANNEL_TOPIC,
 			closeOnSelect: false,
-			onlyCurrentGuild: true,
-			onInvalidGuildEmoji: () => {
-				showToast(
-					'Only current server and default emojis are supported',
-					'voice-status-guild-only',
-				)
-			},
 			onPressEmoji: handleSelectEmoji,
 		})
 	}
