@@ -545,7 +545,7 @@
       "author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
       "icon": "VoiceNormalIcon",
       "channels": {
-        "latest": "1.0.2"
+        "latest": "1.0.3"
       },
       "versions": {
         "1.0.0": {
@@ -588,6 +588,26 @@
           "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.voice-utils@1.0.2.zip",
           "sha256": "aa6c252ce5b3713e2acfc039a2781dab11d4ba413338b0934d6fb53b75629dcb",
           "size": 10000,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "hieuxyz.lib": {
+              "version": ">=1.0.4 <2"
+            },
+            "rosie.toast-api": {
+              "version": ">=1.1.1 <2",
+              "optional": true
+            }
+          }
+        },
+        "1.0.3": {
+          "url": "https://hieuxyz00.github.io/valenced-plugins/pool/hieuxyz.voice-utils@1.0.3.zip",
+          "sha256": "005ebdf5844d2854a63d1ad4b73b896dc29b676ea1e41e4b71e5b087ce9f8e88",
+          "size": 9938,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
