@@ -10,7 +10,7 @@
 		"resolveJsonModule": true,
 		"noEmit": true,
 		"tsBuildInfoFile": "${configDir}/build/tsconfig.tsbuildinfo",
-		"types": ["@valenced/types"]
+		"types": ["@valenced/types", "node"]
 	},
 	"include": ["${configDir}/**/*", "types", "../../shared/**/*"],
 	"exclude": ["${configDir}/build", "${configDir}/node_modules"]

@@ -1,0 +1,16 @@
+{
+	"format": 1,
+	"id": "hieuxyz.double-tap-to-reply",
+	"name": "Double Tap to Reply",
+	"description": "Double-tap any message in chat to quickly reply to it.",
+	"author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
+	"version": "1.0.0",
+	"icon": "ChatDotsIcon",
+	"dependencies": {
+		"valenced.api": { "version": ">=1 <2" },
+		"discord": { "version": "*" }
+	},
+	"dist": {
+		"script": "index.js"
+	}
+}

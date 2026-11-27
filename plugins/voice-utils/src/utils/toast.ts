@@ -1,68 +1,42 @@
-import { ToastActionCreators } from '@valenced/discord/actions'
+import { showToast as showSharedToast } from '../../../../shared/toast'
+import type { ToastVariant } from '../../../../shared/toast'
 
-interface ValencedToastsApi {
-	show?: (
-		opts:
-			| string
-			| {
-					content: string
-					subtitle?: string
-					variant?: 'default' | 'success' | 'critical' | 'warning' | 'info'
-			  },
-	) => void
+function inferVariant(content: string, key?: string): ToastVariant {
+	const k = (key ?? '').toLowerCase()
+	if (
+		k.includes('error') ||
+		k.includes('fail') ||
+		k.includes('empty') ||
+		content.startsWith('Failed')
+	) {
+		return 'critical'
+	}
+	if (k.includes('success') || k.includes('cleared')) {
+		return 'success'
+	}
+	return 'default'
 }
 
-declare const valenced: unknown
+export function showToast(
+	content: string,
+	keyOrVariant?: string,
+	key?: string,
+): void {
+	const isVariant =
+		keyOrVariant === 'default' ||
+		keyOrVariant === 'success' ||
+		keyOrVariant === 'critical' ||
+		keyOrVariant === 'warning' ||
+		keyOrVariant === 'info'
+	const resolvedKey = isVariant ? key : keyOrVariant
+	const resolvedVariant = isVariant
+		? (keyOrVariant as ToastVariant)
+		: inferVariant(content, resolvedKey)
 
-let toastCounter = 0
-
-export function showToast(content: string, key?: string): void {
-	toastCounter += 1
-	const toastKey = key ?? `voice-utils-${Date.now()}-${toastCounter}`
-
-	try {
-		const valencedObj = valenced as { toasts?: ValencedToastsApi }
-		if (typeof valencedObj?.toasts?.show === 'function') {
-			valencedObj.toasts.show({
-				content,
-				subtitle: 'Voice Utils',
-			})
-			return
-		}
-	} catch {}
-
-	if (!ToastActionCreators || typeof ToastActionCreators.open !== 'function') {
-		return
-	}
-
-	try {
-		const openFn = ToastActionCreators.open as unknown as (
-			arg1: unknown,
-			arg2?: unknown,
-		) => void
-
-		if (ToastActionCreators.open.length === 1) {
-			openFn({
-				key: toastKey,
-				content,
-				text: content,
-			})
-		} else {
-			openFn(toastKey, {
-				text: content,
-				content,
-			})
-		}
-	} catch {
-		try {
-			const fallbackFn = ToastActionCreators.open as unknown as (
-				opts: unknown,
-			) => void
-			fallbackFn({
-				key: toastKey,
-				content,
-				text: content,
-			})
-		} catch {}
-	}
+	showSharedToast({
+		text: content,
+		variant: resolvedVariant,
+		key: resolvedKey,
+		keyPrefix: 'voice-utils',
+	})
 }

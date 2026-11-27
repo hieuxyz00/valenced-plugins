@@ -145,7 +145,7 @@ export function ServerDiscoveryView({
 			} catch (err: unknown) {
 				if (reqId === currentRequestRef.current && isMountedRef.current) {
 					const message = (err as Error)?.message ?? 'Failed to load servers'
-					showToast(message)
+					showToast(message, 'critical')
 				}
 			} finally {
 				if (reqId === currentRequestRef.current && isMountedRef.current) {
@@ -205,12 +205,12 @@ export function ServerDiscoveryView({
 			Vibration.vibrate(50)
 			await joinGuild(guild.id)
 			setJoinedSet(prev => new Set(prev).add(guild.id))
-			showToast(`Joined ${guild.name}!`)
+			showToast(`Joined ${guild.name}!`, 'success')
 			selectGuild(guild.id)
 			onClose?.()
 		} catch (err: unknown) {
 			const message = (err as Error)?.message ?? 'Failed to join server'
-			showToast(message)
+			showToast(message, 'critical')
 		} finally {
 			setJoiningId(null)
 		}

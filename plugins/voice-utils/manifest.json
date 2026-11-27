@@ -4,7 +4,7 @@
 	"name": "Voice Utils",
 	"description": "Set voice channel statuses and perform bulk voice moderation (disconnect, move, mute, deafen).",
 	"author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"icon": "VoiceNormalIcon",
 	"dependencies": {
 		"valenced.api": {
@@ -15,10 +15,6 @@
 		},
 		"hieuxyz.lib": {
 			"version": ">=1.0.4 <2"
-		},
-		"rosie.toast-api": {
-			"version": ">=1.1.1 <2",
-			"optional": true
 		}
 	},
 	"dist": {

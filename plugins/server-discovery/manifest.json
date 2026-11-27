@@ -4,17 +4,13 @@
 	"name": "Server Discovery",
 	"description": "Browse, search, preview, and join discoverable Discord servers directly on mobile.",
 	"author": "hieuxyz <994819569795485747> (https://github.com/hieuxyz00 \"GitHub\")",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"icon": "CompassIcon",
 	"dependencies": {
 		"valenced.api": { "version": ">=1 <2" },
 		"discord": { "version": "*" },
 		"valenced.api.themes": {
 			"version": "*",
-			"optional": true
-		},
-		"rosie.toast-api": {
-			"version": ">=1.1.1 <2",
 			"optional": true
 		}
 	},

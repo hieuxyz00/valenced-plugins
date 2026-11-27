@@ -71,6 +71,7 @@ export interface SharedThemeTokens {
 	textHeader: string
 	textBrand: string
 	textDanger: string
+	textPositive: string
 	bgPrimary: string
 	bgSecondary: string
 	bgTertiary: string
@@ -122,6 +123,10 @@ export function getSharedThemeTokens(): SharedThemeTokens {
 		),
 		textBrand: resolve(['TEXT_BRAND', 'BRAND_500'], '#5865f2'),
 		textDanger: resolve(['TEXT_FEEDBACK_CRITICAL', 'TEXT_DANGER'], '#f23f43'),
+		textPositive: resolve(
+			['TEXT_FEEDBACK_POSITIVE', 'STATUS_POSITIVE_TEXT', 'TEXT_POSITIVE'],
+			'#23a55a',
+		),
 		bgPrimary: resolve(
 			['CHANNEL_BACKGROUND_DEFAULT', 'BACKGROUND_BASE_LOW', 'BACKGROUND_PRIMARY', 'BG_BASE_PRIMARY', 'BACKGROUND_MOBILE_PRIMARY'],
 			isDark ? '#313338' : '#ffffff',
